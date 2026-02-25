@@ -53,6 +53,37 @@ Work in logical phases. Standard structure (adjust based on task):
 
 ---
 
+## STEP 1.2: Skill Loading (MANDATORY — Before Each Phase)
+
+**Before starting any phase**, evaluate which installed skills are relevant and load them.
+
+1. Read the available skills from the system reminder skill list
+2. For the current phase type, consider which skills apply:
+
+| Phase Type | Skills to Consider |
+|---|---|
+| Discovery (1) | `search-first`, `iterative-retrieval` |
+| Foundation/Data/Backend (2-4) | `coding-standards`, `ai-sdk` (if AI features) |
+| API/Core Logic/Integration (5-7) | `coding-standards`, `frontend-design` (if UI), `ai-sdk` (if AI) |
+| Edge Cases/Polish (8-9) | `coding-standards` |
+| Verification (10) | `coding-standards` |
+
+3. Load the 1-3 most relevant skills using the **Skill** tool
+4. **Output this line** (forced format — do not skip):
+
+```
+SKILLS_LOADED: [skill-name-1, skill-name-2] | Phase: N (Type)
+```
+
+If no skills are needed for a phase, output:
+```
+SKILLS_LOADED: none | Phase: N (Type) | Reason: [why]
+```
+
+**The table above is a starting point.** As new skills are installed, evaluate ALL available skills — not just the ones listed. The skill list in the system reminder is the source of truth.
+
+---
+
 ## STEP 1.5: Parallel Agent Execution (MANDATORY)
 
 **Default behavior: PARALLELIZE AGGRESSIVELY**

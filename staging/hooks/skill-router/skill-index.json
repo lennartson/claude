@@ -1,0 +1,114 @@
+{
+  "skills": [
+    {
+      "name": "directory-enumeration-reliability",
+      "dir": "directory-enumeration-reliability",
+      "description": "Glob skips symlinks; use ls -la or ls -d for directory enumeration that includes symlinked entries",
+      "use_when": "",
+      "search": "glob skips symlinks; use ls -la or ls -d for directory enumeration that includes symlinked entries ",
+      "path": "/Users/sethkravitz/.claude/skills/learned/directory-enumeration-reliability/SKILL.md",
+      "background": true
+    },
+    {
+      "name": "iterative-retrieval",
+      "dir": "iterative-retrieval",
+      "description": "Pattern for progressively refining context retrieval to solve the subagent context problem",
+      "use_when": "",
+      "search": "pattern for progressively refining context retrieval to solve the subagent context problem ",
+      "path": "/Users/sethkravitz/.claude/skills/iterative-retrieval/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "Coding Standards",
+      "dir": "coding-standards",
+      "description": "Concrete patterns for writing high-quality code",
+      "use_when": "Writing code, reviewing code, fixing bugs, refactoring",
+      "search": "concrete patterns for writing high-quality code writing code, reviewing code, fixing bugs, refactoring",
+      "path": "/Users/sethkravitz/.claude/skills/coding-standards/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "pdf",
+      "dir": "pdf",
+      "description": "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. Use when you need to programmatically process, generate, or analyze PDF documents.",
+      "use_when": "",
+      "search": "comprehensive pdf manipulation toolkit for extracting text and tables, creating new pdfs, merging/splitting documents, and handling forms. use when you need to programmatically process, generate, or analyze pdf documents. ",
+      "path": "/Users/sethkravitz/.claude/skills/pdf/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "find-skills",
+      "dir": "find-skills",
+      "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.",
+      "use_when": "",
+      "search": "helps users discover and install agent skills when they ask questions like \"how do i do x\", \"find a skill for x\", \"is there a skill that can...\", or express interest in extending capabilities. this skill should be used when the user is looking for functionality that might exist as an installable skill. ",
+      "path": "/Users/sethkravitz/.claude/skills/find-skills/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "agentation-self-driving",
+      "dir": "agentation-self-driving",
+      "description": "Autonomous design critique mode using the Agentation annotation toolbar. Use when the user asks to \"critique this page,\" \"add design annotations,\" \"review the UI,\" \"self-driving mode,\" \"auto-annotate,\" or wants an AI agent to autonomously add design feedback annotations to a web page via the browser. Requires the Agentation toolbar to be installed on the target page and agent-browser skill to be available.",
+      "use_when": "",
+      "search": "autonomous design critique mode using the agentation annotation toolbar. use when the user asks to \"critique this page,\" \"add design annotations,\" \"review the ui,\" \"self-driving mode,\" \"auto-annotate,\" or wants an ai agent to autonomously add design feedback annotations to a web page via the browser. requires the agentation toolbar to be installed on the target page and agent-browser skill to be available. ",
+      "path": "/Users/sethkravitz/.claude/skills/agentation-self-driving/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "continuous-learning-v2",
+      "dir": "continuous-learning-v2",
+      "description": "Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents.",
+      "use_when": "",
+      "search": "instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents. ",
+      "path": "/Users/sethkravitz/.claude/skills/continuous-learning-v2/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "frontend-design",
+      "dir": "frontend-design",
+      "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.",
+      "use_when": "",
+      "search": "create distinctive, production-grade frontend interfaces with high design quality. use this skill when the user asks to build web components, pages, or applications. generates creative, polished code that avoids generic ai aesthetics. ",
+      "path": "/Users/sethkravitz/.claude/skills/frontend-design/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "ai-sdk",
+      "dir": "ai-sdk",
+      "description": "Answer questions about the AI SDK and help build AI-powered features. Use when developers ask about AI SDK functions like generateText, streamText, ToolLoopAgent, embed, or tools; want to build AI agents, chatbots, RAG systems, or text generation features; have questions about AI providers, streaming, tool calling, structured output, or embeddings; or use React hooks like useChat or useCompletion.",
+      "use_when": "Building AI-powered features, agent harnesses, chatbots, or anything using the Vercel AI SDK",
+      "search": "answer questions about the ai sdk and help build ai-powered features. use when developers ask about ai sdk functions like generatetext, streamtext, toolloopagent, embed, or tools; want to build ai agents, chatbots, rag systems, or text generation features; have questions about ai providers, streaming, tool calling, structured output, or embeddings; or use react hooks like usechat or usecompletion. building ai-powered features, agent harnesses, chatbots, or anything using the vercel ai sdk",
+      "path": "/Users/sethkravitz/.claude/skills/ai-sdk/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "agentation",
+      "dir": "agentation",
+      "description": "Add Agentation visual feedback toolbar to a Next.js project",
+      "use_when": "",
+      "search": "add agentation visual feedback toolbar to a next.js project ",
+      "path": "/Users/sethkravitz/.claude/skills/agentation/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "skill-stocktake",
+      "dir": "skill-stocktake",
+      "description": "Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation.",
+      "use_when": "",
+      "search": "use when auditing claude skills and commands for quality. supports quick scan (changed skills only) and full stocktake modes with sequential subagent batch evaluation. ",
+      "path": "/Users/sethkravitz/.claude/skills/skill-stocktake/SKILL.md",
+      "background": false
+    },
+    {
+      "name": "search-first",
+      "dir": "search-first",
+      "description": "Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent.",
+      "use_when": "",
+      "search": "research-before-coding workflow. search for existing tools, libraries, and patterns before writing custom code. invokes the researcher agent. ",
+      "path": "/Users/sethkravitz/.claude/skills/search-first/SKILL.md",
+      "background": false
+    }
+  ],
+  "generated_at": "2026-02-25T18:30:12Z",
+  "count": 12
+}

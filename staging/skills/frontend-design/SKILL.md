@@ -49,16 +49,40 @@ Before writing any code, understand the context:
 - Border radius consistency
 - Hover states that delight
 
-## Anti-Patterns to AVOID
+## AI Tells Blocklist
 
-**NEVER produce generic AI-generated aesthetics:**
+These patterns instantly mark output as AI-generated. NEVER use them:
 
-- Overused fonts: Inter, Roboto, Arial as defaults
-- Cliched colors: Purple-to-blue gradients, generic "tech blue"
-- Predictable layouts: Same card grid, same hero section
-- Cookie-cutter components: Generic Material/Bootstrap feel
-- Meaningless animations: Bounce/pulse with no purpose
-- Stock-photo energy: Feels template, not crafted
+**Color & Visual**
+- Purple-to-blue gradients ("AI purple"), neon/outer glows, oversaturated accents (keep saturation <80%)
+- Pure black `#000000` (use `#0a0a0a` or `#111`), text-fill gradients on body copy
+- Generic shadcn/ui defaults without customization
+
+**Typography**
+- Inter, Roboto, or Arial as defaults (use Geist, Outfit, Cabinet Grotesk, or project-specific choices)
+- Oversized hero H1s with no typographic scale backing them
+
+**Layout**
+- Cards wrapping everything — only use cards when elevation communicates hierarchy; prefer borders and negative space for data-dense layouts
+- Centered hero + 3-card grid below it (the #1 AI layout cliche)
+- Identical card grids with no layout variation
+
+**Content & Copy**
+- Placeholder names: "Jane Doe", "John Smith", "Acme Corp", "Nexus", "TechFlow"
+- Filler copy: "Elevate", "Seamless", "Revolutionize", "Supercharge", "Unlock the power of"
+- Suspiciously round numbers: `99.99%`, `10x faster`, `$9.99/mo`
+- Broken or placeholder Unsplash URLs
+
+**Interaction**
+- Bounce/pulse animations with no purpose
+- Hover effects that only change opacity
+
+**Mobile**
+- Use `min-h-[100dvh]` not `h-screen` (prevents mobile viewport collapse)
+
+## Icons Over Emoji
+
+NEVER use emoji in UI components. Use icon libraries (Lucide, Phosphor, Radix Icons) instead. Emoji screams prototype.
 
 ## Output Standards
 

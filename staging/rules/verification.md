@@ -35,6 +35,13 @@
 | Assumed it works because it compiles | Compiling ≠ working. Actually verify. |
 | Added features not requested | If not in brief, don't build it |
 
+## Workaround Escalation Rule
+
+- If you're on your THIRD workaround for the same problem, STOP
+- The approach is wrong — step back and rethink the architecture
+- Ask the user before continuing down a chain of workarounds
+- Each workaround adds complexity and risk (e.g. credential leaks, shadow infrastructure)
+
 ## Core Principles
 
 1. **Verify, don't assume** - The more confident you feel, the MORE you must verify
