@@ -42,6 +42,21 @@
 - Ask the user before continuing down a chain of workarounds
 - Each workaround adds complexity and risk (e.g. credential leaks, shadow infrastructure)
 
+## Agent Delegation Verification
+
+NEVER trust agent success reports at face value:
+```
+Agent reports success → Check VCS diff → Verify changes actually exist → Report actual state
+```
+
+## Regression Test Red-Green Verification
+
+A regression test MUST prove it catches the bug:
+```
+Write test → Run (PASS) → Revert fix → Run (MUST FAIL) → Restore fix → Run (PASS)
+```
+A test that only passes proves nothing. It must fail without the fix.
+
 ## Core Principles
 
 1. **Verify, don't assume** - The more confident you feel, the MORE you must verify

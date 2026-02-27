@@ -27,6 +27,23 @@ Test-Driven Development is the default for all work EXCEPT `/spike` mode.
 - Descriptive test names: "should reject empty input"
 - No console.log in tests
 
+## Test Naming
+
+| Quality | Good | Bad |
+|---------|------|-----|
+| **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
+| **Clear** | Name describes behavior: `'retries failed operations 3 times'` | `test('test1')` or `test('retry works')` |
+| **Shows intent** | Demonstrates desired API with real code | Obscures behavior behind mocks |
+
+## When Stuck
+
+| Problem | Solution |
+|---------|----------|
+| Don't know how to test | Write wished-for API. Write assertion first. Ask your human partner. |
+| Test too complicated | Design too complicated. Simplify interface. |
+| Must mock everything | Code too coupled. Use dependency injection. |
+| Test setup huge | Extract helpers. Still complex? Simplify design. |
+
 ## Coverage
 
 - Aim for meaningful coverage, not 100%
