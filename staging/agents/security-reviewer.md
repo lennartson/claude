@@ -180,6 +180,78 @@ Search Security (Redis + OpenAI):
 - [ ] Redis AUTH enabled
 ```
 
+## AI-Generated Code: Business Logic Vulnerabilities
+
+AI coding tools (Claude Code, Copilot, Cursor) produce code that compiles and runs but systematically misses business logic security. These are NOT classic injection bugs — they're authorization and workflow flaws that static analysis tools miss entirely. **Check every AI-generated endpoint against this list.**
+
+### Checklist
+
+| # | Vulnerability | What to grep for | Severity |
+|---|--------------|------------------|----------|
+| 1 | **Deactivated users retain access** | Auth middleware that checks credentials but never checks `isActive`, `status`, `deletedAt`, or `disabledAt` | CRITICAL |
+| 2 | **Missing ownership checks** | Routes using `req.params.id` to fetch resources without verifying `resource.userId === req.user.id` | CRITICAL |
+| 3 | **Unbounded financial operations** | Transfer/refund/withdrawal endpoints with no server-side min/max amount validation | CRITICAL |
+| 4 | **Mass assignment on privileged fields** | `Object.assign`, spread operators, or ORM `.update(req.body)` that don't exclude `role`, `isAdmin`, `status`, `balance` | CRITICAL |
+| 5 | **Password hashes in API responses** | `SELECT *` or ORM `.findOne()` without explicit field selection — leaks `passwordHash`, `mfaSecret`, internal IDs | HIGH |
+| 6 | **Self-service role escalation** | User registration or profile update endpoints that accept a `role` field from the client | CRITICAL |
+| 7 | **Workflow state manipulation** | Status transition endpoints (e.g., order `pending→shipped`) that don't validate the transition is legal | HIGH |
+| 8 | **Cross-tenant data access** | Multi-tenant apps where queries filter by user-supplied `orgId` without verifying membership | CRITICAL |
+
+### Detection Patterns
+
+```javascript
+// ❌ #1: Auth checks credentials but not account status
+const user = await db.users.findOne({ email, passwordHash: hash })
+if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+req.user = user // Never checks user.isActive or user.deletedAt
+
+// ✅ Fix: Always verify account is active
+const user = await db.users.findOne({ email, passwordHash: hash })
+if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+if (!user.isActive || user.deletedAt) return res.status(403).json({ error: 'Account disabled' })
+
+// ❌ #2: Fetches resource by ID without ownership check
+app.get('/api/invoices/:id', auth, async (req, res) => {
+  const invoice = await db.invoices.findById(req.params.id)
+  res.json(invoice) // Any authenticated user can read any invoice
+})
+
+// ✅ Fix: Verify ownership or admin role
+app.get('/api/invoices/:id', auth, async (req, res) => {
+  const invoice = await db.invoices.findById(req.params.id)
+  if (invoice.userId !== req.user.id && !req.user.isAdmin) {
+    return res.status(403).json({ error: 'Forbidden' })
+  }
+  res.json(invoice)
+})
+
+// ❌ #4: Spreads entire request body into update
+app.patch('/api/users/:id', auth, async (req, res) => {
+  await db.users.update(req.params.id, req.body) // Client can set { isAdmin: true }
+})
+
+// ✅ Fix: Allowlist updatable fields
+const { name, email, avatar } = req.body
+await db.users.update(req.params.id, { name, email, avatar })
+
+// ❌ #5: Returns full user object including sensitive fields
+const user = await db.users.findById(id)
+res.json(user) // Leaks passwordHash, mfaSecret, internalNotes
+
+// ✅ Fix: Explicit field selection
+const user = await db.users.findById(id).select('id name email avatar createdAt')
+res.json(user)
+```
+
+### When AI Code Is Especially Dangerous
+
+- **CRUD generators** — AI builds all four operations but rarely adds ownership checks to Read/Update/Delete
+- **Admin dashboards** — AI creates admin routes but often forgets to add admin-only middleware
+- **Financial features** — AI implements transfers/refunds but omits server-side amount bounds and atomic transactions
+- **Multi-step workflows** — AI builds each step but doesn't enforce valid state transitions between them
+
+---
+
 ## Vulnerability Patterns to Detect
 
 ### 1. Hardcoded Secrets (CRITICAL)
