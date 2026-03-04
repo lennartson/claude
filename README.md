@@ -118,7 +118,7 @@ See the full changelog in [Releases](https://github.com/affaan-m/everything-clau
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 Get up and running in under 2 minutes:
 
@@ -134,7 +134,7 @@ Get up and running in under 2 minutes:
 
 ### Step 2: Install Rules (Required)
 
-> ⚠️ **Important:** Claude Code plugins cannot distribute `rules` automatically. Install them manually:
+> ⚠️ **VERY Important:** Claude Code plugins cannot distribute `rules` automatically. Install them manually:
 
 ```bash
 # Clone the repo first
@@ -164,11 +164,11 @@ For manual install instructions see the README in the `rules/` folder.
 /plugin list everything-claude-code@everything-claude-code
 ```
 
-✨ **That's it!** You now have access to 13 agents, 56 skills, and 32 commands.
+ **That's it!** You now have access to 13 agents, 56 skills, and 32 commands.
 
 ---
 
-## 🌐 Cross-Platform Support
+## Cross-Platform Support
 
 This plugin now fully supports **Windows, macOS, and Linux**. All hooks and scripts have been rewritten in Node.js for maximum compatibility.
 
@@ -203,7 +203,7 @@ Or use the `/setup-pm` command in Claude Code.
 
 ---
 
-## 📦 What's Inside
+##  What's Inside
 
 This repo is a **Claude Code plugin** - install it directly or copy components manually.
 
@@ -448,7 +448,7 @@ Use `/security-scan` in Claude Code to run it, or add to CI with the [GitHub Act
 
 Plankton (credit: @alxfazio) is a recommended companion for write-time code quality enforcement. It runs formatters and 20+ linters on every file edit via PostToolUse hooks, then spawns Claude subprocesses (routed to Haiku/Sonnet/Opus by violation complexity) to fix issues the main agent missed. Three-phase architecture: auto-format silently (40-50% of issues), collect remaining violations as structured JSON, delegate fixes to a subprocess. Includes config protection hooks that prevent agents from modifying linter configs to pass instead of fixing code. Supports Python, TypeScript, Shell, YAML, JSON, TOML, Markdown, and Dockerfile. Use alongside AgentShield for security + quality coverage. See `skills/plankton-code-quality/` for full integration guide.
 
-### 🧠 Continuous Learning v2
+###  Continuous Learning v2
 
 The instinct-based learning system automatically learns your patterns:
 
