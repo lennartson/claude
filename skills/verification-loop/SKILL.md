@@ -1,3 +1,8 @@
+---
+name: verification-loop
+description: "General verification workflow for Claude Code sessions covering build, type check, lint, tests, security scans, and diff review before PRs or after significant changes."
+---
+
 # Verification Loop Skill
 
 A comprehensive verification system for Claude Code sessions.
