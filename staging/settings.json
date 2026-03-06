@@ -56,7 +56,42 @@
       "Bash(*git push*--mirror*)",
       "Bash(*docker system prune*)",
       "Bash(*docker volume rm*)",
-      "Bash(*docker volume prune*)"
+      "Bash(*docker volume remove*)",
+      "Bash(*docker volume prune*)",
+      "Bash(*docker service rm*)",
+      "Bash(*docker service remove*)",
+      "Bash(*docker stack rm*)",
+      "Bash(*docker stack remove*)",
+      "Bash(*docker network rm*)",
+      "Bash(*docker network remove*)",
+      "Bash(*docker network prune*)",
+      "Bash(*docker compose down*-v*)",
+      "Bash(*docker-compose down*-v*)",
+      "Bash(*docker compose down*--volumes*)",
+      "Bash(*docker-compose down*--volumes*)",
+      "Bash(*gcloud*delete*)",
+      "Bash(*gcloud storage rm*)",
+      "Bash(*aws s3 rm *)",
+      "Bash(*aws s3 rb *)",
+      "Bash(*aws * delete-*)",
+      "Bash(*aws * terminate-*)",
+      "Bash(*terraform destroy*)",
+      "Bash(*terraform*-auto-approve*)",
+      "Bash(*terraform state rm*)",
+      "Bash(*terraform taint*)",
+      "Bash(*cdk destroy*)",
+      "Bash(*git reflog expire*)",
+      "Bash(*git filter-branch*)",
+      "Bash(*git prune*)",
+      "Bash(*scp *.env *)",
+      "Bash(*scp *.pem *)",
+      "Bash(*scp *.key *)",
+      "Bash(*scp *id_rsa*)",
+      "Bash(*scp *id_ed25519*)",
+      "Bash(*rsync *.env *)",
+      "Bash(*rsync *.pem *)",
+      "Bash(*rsync *id_rsa*)",
+      "Bash(*rsync *id_ed25519*)"
     ],
     "ask": [
       "Bash(*npm install*)",
@@ -103,6 +138,26 @@
         ]
       },
       {
+        "matcher": "tool == \"Bash\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/dev-server-blocker.js",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Bash\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/tmux-reminder.js",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
         "matcher": "tool == \"Bash\" && tool_input.command matches \"--no-verify\"",
         "hooks": [
           {
@@ -117,6 +172,16 @@
           {
             "type": "command",
             "command": "#!/bin/bash\necho '[Hook] BLOCKED: Piping to shell interpreter is not allowed' >&2\necho '[Hook] Download the script first, review it, then run it separately' >&2\nexit 2"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Write\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/doc-file-warning.js",
+            "timeout": 3000
           }
         ]
       },

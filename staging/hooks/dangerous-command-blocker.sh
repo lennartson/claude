@@ -77,12 +77,89 @@ if echo "$cmd" | grep -qE '\bgit\s+push\s.*--mirror'; then
   blocked "git push --mirror" "This overwrites the entire remote"
 fi
 
+# --- GIT HISTORY DESTRUCTION (recovery path elimination) ---
+if echo "$cmd" | grep -qE '\bgit\s+reflog\s+expire\b'; then
+  blocked "git reflog expire" "This removes recovery points — you lose the ability to undo"
+fi
+if echo "$cmd" | grep -qE '\bgit\s+filter-branch\b'; then
+  blocked "git filter-branch" "This destructively rewrites history — use git filter-repo instead"
+fi
+if echo "$cmd" | grep -qE '(^|;|&&|\|)\s*git\s+prune\b'; then
+  blocked "git prune" "This permanently removes unreachable objects"
+fi
+
 # --- DOCKER DESTRUCTIVE OPS ---
 if echo "$cmd" | grep -qE '\bdocker\s+system\s+prune'; then
   blocked "docker system prune" "This removes all unused containers, images, and networks"
 fi
-if echo "$cmd" | grep -qE '\bdocker\s+volume\s+(rm|prune)'; then
+if echo "$cmd" | grep -qE '\bdocker\s+volume\s+(rm|remove|prune)'; then
   blocked "docker volume destruction" "This permanently deletes persistent data"
+fi
+
+# --- DOCKER SERVICE/STACK/NETWORK DESTRUCTION ---
+if echo "$cmd" | grep -qE '\bdocker\s+(service|stack)\s+(rm|remove)\b'; then
+  blocked "docker service/stack removal" "This tears down running services and their state"
+fi
+if echo "$cmd" | grep -qE '\bdocker\s+network\s+(rm|remove|prune)\b'; then
+  blocked "docker network removal" "This can disconnect running containers"
+fi
+if echo "$cmd" | grep -qE '\bdocker[ -]compose\s+down\s+.*(-v\b|--volumes\b)'; then
+  blocked "docker compose down with volume deletion" "The -v/--volumes flag deletes attached volumes and their data"
+fi
+
+# --- CLOUD INFRASTRUCTURE: GCLOUD ---
+if echo "$cmd" | grep -qE '\bgcloud\s+.*\bdelete\b'; then
+  blocked "gcloud delete operation" "Cloud resource deletion requires explicit user approval — run manually"
+fi
+if echo "$cmd" | grep -qE '\bgcloud\s+storage\s+rm\b'; then
+  blocked "gcloud storage deletion" "Cloud Storage deletion requires explicit user approval — run manually"
+fi
+
+# --- CLOUD INFRASTRUCTURE: AWS CLI ---
+if echo "$cmd" | grep -qE '\baws\s+\S+\s+(delete|terminate)\b'; then
+  blocked "AWS destructive operation" "AWS resource deletion/termination requires explicit user approval — run manually"
+fi
+if echo "$cmd" | grep -qE '\baws\s+s3\s+(rm|rb)\b'; then
+  blocked "AWS S3 deletion" "S3 object/bucket deletion requires explicit user approval — run manually"
+fi
+
+# --- CLOUD INFRASTRUCTURE: TERRAFORM / CDK ---
+if echo "$cmd" | grep -qE '\bterraform\s+(destroy|taint|untaint)\b'; then
+  blocked "Terraform destructive operation" "Infrastructure teardown requires explicit user approval — run manually"
+fi
+if echo "$cmd" | grep -qE '\bterraform\s+apply\s+.*-auto-approve'; then
+  blocked "Terraform auto-approve" "Never auto-approve infrastructure changes — review the plan first"
+fi
+if echo "$cmd" | grep -qE '\bterraform\s+state\s+rm\b'; then
+  blocked "Terraform state removal" "Removing resources from state causes drift and orphaned infrastructure"
+fi
+if echo "$cmd" | grep -qE '\bcdk\s+destroy\b'; then
+  blocked "CDK destroy" "Infrastructure teardown requires explicit user approval — run manually"
+fi
+
+# --- SSH REMOTE DESTRUCTIVE COMMANDS ---
+# Local blockers above don't catch destructive commands passed inside SSH arguments
+if echo "$cmd" | grep -qE '\bssh\s+.*\b(rm\s+-|sudo\s|dd\s|mkfs|wipefs|shutdown|reboot|poweroff|halt|init\s+[06]|terraform\s+destroy)'; then
+  blocked "Destructive command via SSH" "Remote destructive operations require explicit user approval — run manually"
+fi
+
+# --- CREDENTIAL FILE TRANSFER ---
+if echo "$cmd" | grep -qE '\b(scp|rsync)\s+.*\.(env|pem|key|p12|jks)\b'; then
+  blocked "Credential file transfer" "NEVER transfer credential files to remote servers — use env vars in orchestrator"
+fi
+if echo "$cmd" | grep -qE '\b(scp|rsync)\s+.*(id_rsa|id_ed25519|id_ecdsa|id_dsa|\.aws/credentials)\b'; then
+  blocked "SSH/cloud credential transfer" "NEVER transfer private keys or cloud credentials to remote servers"
+fi
+
+# --- SECRET LEAKAGE ---
+if echo "$cmd" | grep -qE '\bcat\s+.*(/(id_rsa|id_ed25519|id_ecdsa|id_dsa))\b'; then
+  blocked "Reading SSH private key" "Private keys should never be read or displayed via bash"
+fi
+if echo "$cmd" | grep -qE '\bcat\s+.*\.aws/(credentials|config)\b'; then
+  blocked "Reading AWS credentials" "Cloud credentials should never be displayed in terminal"
+fi
+if echo "$cmd" | grep -qiE '\bhistory\s*\|\s*grep\s+.*(password|token|secret|api.key|credential)\b'; then
+  blocked "Searching history for secrets" "This can leak credentials from command history"
 fi
 
 # --- FILE DESTRUCTION ---
@@ -96,7 +173,7 @@ if echo "$cmd" | grep -qE '(^|;|&&|\|)\s*(mkfs|mke2fs|newfs|wipefs)\b'; then
 fi
 
 # --- DATABASE DROPS ---
-if echo "$cmd" | grep -qiE "(DROP\s+(TABLE|DATABASE|SCHEMA)|FLUSHALL|FLUSHDB|dropDatabase)"; then
+if echo "$cmd" | grep -qiE "(DROP\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\s+|FLUSHALL|FLUSHDB|dropDatabase)"; then
   blocked "Database destruction command" "This permanently deletes data"
 fi
 
