@@ -75,7 +75,7 @@ fi
 # Auto-purge observation files older than 30 days (runs once per session)
 PURGE_MARKER="${PROJECT_DIR}/.last-purge"
 if [ ! -f "$PURGE_MARKER" ] || [ "$(find "$PURGE_MARKER" -mtime +1 2>/dev/null)" ]; then
-  find "${_CLV2_PROJECTS_DIR:-$CONFIG_DIR/projects}" -name "observations*.jsonl" -mtime +30 -delete 2>/dev/null || true
+  find "${PROJECT_DIR}" -name "observations-*.jsonl" -mtime +30 -delete 2>/dev/null || true
   touch "$PURGE_MARKER" 2>/dev/null || true
 fi
 
@@ -161,40 +161,41 @@ export PROJECT_ID_ENV="$PROJECT_ID"
 export PROJECT_NAME_ENV="$PROJECT_NAME"
 export TIMESTAMP="$timestamp"
 
-echo "$PARSED" | python3 -c "
+echo "$PARSED" | python3 -c '
 import json, sys, os, re
 
 parsed = json.load(sys.stdin)
 observation = {
-    'timestamp': os.environ['TIMESTAMP'],
-    'event': parsed['event'],
-    'tool': parsed['tool'],
-    'session': parsed['session'],
-    'project_id': os.environ.get('PROJECT_ID_ENV', 'global'),
-    'project_name': os.environ.get('PROJECT_NAME_ENV', 'global')
+    "timestamp": os.environ["TIMESTAMP"],
+    "event": parsed["event"],
+    "tool": parsed["tool"],
+    "session": parsed["session"],
+    "project_id": os.environ.get("PROJECT_ID_ENV", "global"),
+    "project_name": os.environ.get("PROJECT_NAME_ENV", "global")
 }
 
-# Scrub secrets: match common key=value, key: value, and key\"value patterns
+# Scrub secrets: match common key=value, key: value, and key"value patterns
+# Includes optional auth scheme (e.g., "Bearer", "Basic") before token
 _SECRET_RE = re.compile(
-    r'(?i)(api[_-]?key|token|secret|password|authorization|credentials?|auth)'
-    r'([\"'\''\\s:=]+)'
-    r'[\"'\''\\s]*'
-    r'([A-Za-z0-9_\-/.+=]{8,})',
+    r"(?i)(api[_-]?key|token|secret|password|authorization|credentials?|auth)"
+    r"""(["'"'"'\s:=]+)"""
+    r"(?:[A-Za-z]+\s+)?"
+    r"([A-Za-z0-9_\-/.+=]{8,})",
     re.IGNORECASE
 )
 
 def scrub(val):
     if val is None:
         return None
-    return _SECRET_RE.sub(r'\1\2[REDACTED]', str(val))
+    return _SECRET_RE.sub(r"\1\2[REDACTED]", str(val))
 
-if parsed['input']:
-    observation['input'] = scrub(parsed['input'])
-if parsed['output'] is not None:
-    observation['output'] = scrub(parsed['output'])
+if parsed["input"]:
+    observation["input"] = scrub(parsed["input"])
+if parsed["output"] is not None:
+    observation["output"] = scrub(parsed["output"])
 
 print(json.dumps(observation))
-" >> "$OBSERVATIONS_FILE"
+' >> "$OBSERVATIONS_FILE"
 
 # Signal observer if running (check both project-scoped and global observer)
 for pid_file in "${PROJECT_DIR}/.observer.pid" "${CONFIG_DIR}/.observer.pid"; do

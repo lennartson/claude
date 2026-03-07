@@ -342,7 +342,13 @@ function runCommand(cmd, options = {}) {
   // Allowlist: only permit known-safe command prefixes
   const allowedPrefixes = ['git ', 'node ', 'npx ', 'which ', 'where '];
   if (!allowedPrefixes.some(prefix => cmd.startsWith(prefix))) {
-    return { success: false, output: `runCommand blocked: unrecognized command prefix in "${cmd}"` };
+    return { success: false, output: 'runCommand blocked: unrecognized command prefix' };
+  }
+
+  // Reject shell command-chaining operators outside of quoted strings
+  const unquoted = cmd.replace(/"[^"]*"/g, '').replace(/'[^']*'/g, '');
+  if (/[;|&`]/.test(unquoted)) {
+    return { success: false, output: 'runCommand blocked: shell metacharacters not allowed' };
   }
 
   try {
