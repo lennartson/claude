@@ -46,6 +46,7 @@ When unsure: ASK. A clarifying question now prevents wrong implementation later.
 | `/plan` | Create implementation plan before coding |
 | `/tdd` | Test-driven development (RED/GREEN/REFACTOR) |
 | `/review` | Parallel 3-agent review with deduplication |
+| `/dual-review` | Cross-LLM review: 3 Claude agents + 3 Codex passes, reconciled |
 | `/ship` | Formal quality gate before merging |
 | `/audit` | Forensic deep sweep of codebase |
 | `/verify` | Automated checks (build, types, lint, tests) |
