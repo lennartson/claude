@@ -57,6 +57,13 @@ Write test → Run (PASS) → Revert fix → Run (MUST FAIL) → Restore fix →
 ```
 A test that only passes proves nothing. It must fail without the fix.
 
+## Before Committing
+
+- ALWAYS read the full `git diff` (not just `--stat`) before committing — review your own changes like a human reviewer would
+- Check for: unintended changes, debug code, console.log, leftover TODOs, files you didn't mean to touch
+- If the diff touches more than one logical concern, split into separate commits
+- Clean up any research workspaces (`/tmp/claude-research-*`) before session ends
+
 ## Core Principles
 
 1. **Verify, don't assume** - The more confident you feel, the MORE you must verify
