@@ -331,16 +331,22 @@ function commandExists(cmd) {
 /**
  * Run a command and return output
  *
- * SECURITY NOTE: This function executes shell commands. Only use with
- * trusted, hardcoded commands. Never pass user-controlled input directly.
- * For user input, use spawnSync with argument arrays instead.
+ * SECURITY NOTE: This function executes shell commands. To reduce misuse risk,
+ * only a small allowlist of command prefixes is permitted.
  *
  * @param {string} cmd - Command to execute (should be trusted/hardcoded)
  * @param {object} options - execSync options
  */
 function runCommand(cmd, options = {}) {
+  const command = typeof cmd === 'string' ? cmd.trim() : '';
+  const allowlistRegex = /^(git|node|npx|which|where)(\s|$)/;
+
+  if (!allowlistRegex.test(command)) {
+    return { success: false, output: `Command not allowed: ${command || '<empty>'}` };
+  }
+
   try {
-    const result = execSync(cmd, {
+    const result = execSync(command, {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
       ...options

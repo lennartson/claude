@@ -23,6 +23,18 @@ _CLV2_HOMUNCULUS_DIR="${HOME}/.claude/homunculus"
 _CLV2_PROJECTS_DIR="${_CLV2_HOMUNCULUS_DIR}/projects"
 _CLV2_REGISTRY_FILE="${_CLV2_HOMUNCULUS_DIR}/projects.json"
 
+# Strip embedded credentials from HTTPS remote URLs before hashing/persisting,
+# e.g. https://ghp_xxx@github.com/org/repo.git -> https://github.com/org/repo.git
+_clv2_sanitize_remote_url() {
+  local raw_url="$1"
+  if [ -z "$raw_url" ]; then
+    printf ''
+    return 0
+  fi
+
+  printf '%s' "$raw_url" | sed -E 's#(https?://)[^/@]+@#\1#'
+}
+
 _clv2_detect_project() {
   local project_root=""
   local project_name=""
@@ -64,7 +76,10 @@ _clv2_detect_project() {
     fi
   fi
 
-  local hash_input="${remote_url:-$project_root}"
+  local sanitized_remote_url=""
+  sanitized_remote_url=$(_clv2_sanitize_remote_url "$remote_url")
+
+  local hash_input="${sanitized_remote_url:-$project_root}"
   # Use SHA256 via python3 (portable across macOS/Linux, no shasum/sha256sum divergence)
   project_id=$(printf '%s' "$hash_input" | python3 -c "import sys,hashlib; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])" 2>/dev/null)
 
@@ -90,7 +105,7 @@ _clv2_detect_project() {
   mkdir -p "${_CLV2_PROJECT_DIR}/evolved/agents"
 
   # Update project registry (lightweight JSON mapping)
-  _clv2_update_project_registry "$project_id" "$project_name" "$project_root" "$remote_url"
+  _clv2_update_project_registry "$project_id" "$project_name" "$project_root" "$sanitized_remote_url"
 }
 
 _clv2_update_project_registry() {

@@ -397,6 +397,12 @@ function runTests() {
     assert.strictEqual(result.success, false);
   })) passed++; else failed++;
 
+  if (test('runCommand blocks disallowed command prefixes', () => {
+    const result = utils.runCommand('echo hello');
+    assert.strictEqual(result.success, false);
+    assert.ok(result.output.includes('Command not allowed'));
+  })) passed++; else failed++;
+
   // output() and log() tests
   console.log('\noutput() and log():');
 

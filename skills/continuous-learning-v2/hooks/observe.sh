@@ -65,7 +65,9 @@ source "${SKILL_ROOT}/scripts/detect-project.sh"
 
 CONFIG_DIR="${HOME}/.claude/homunculus"
 OBSERVATIONS_FILE="${PROJECT_DIR}/observations.jsonl"
+OBSERVATIONS_ARCHIVE_DIR="${PROJECT_DIR}/observations.archive"
 MAX_FILE_SIZE_MB=10
+OBSERVATION_RETENTION_DAYS=30
 
 # Skip if disabled
 if [ -f "$CONFIG_DIR/disabled" ]; then
@@ -129,20 +131,35 @@ if [ "$PARSED_OK" != "True" ]; then
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   export TIMESTAMP="$timestamp"
   echo "$INPUT_JSON" | python3 -c "
-import json, sys, os
+import json, re, sys, os
+
 raw = sys.stdin.read()[:2000]
+
+patterns = [
+    (re.compile(r'(?i)(authorization\s*[:=]\s*(?:bearer\s+)?)[^\s,}]+'), r'\1[REDACTED]'),
+    (re.compile(r'(?i)((?:api[_-]?key|token|password|secret|passwd|client[_-]?secret)\s*[:=]\s*)[^\s,}]+'), r'\1[REDACTED]'),
+    (re.compile(r'\bgh[pousr]_[A-Za-z0-9]{20,}\b'), '[REDACTED_GITHUB_TOKEN]'),
+    (re.compile(r'\bsk-[A-Za-z0-9]{20,}\b'), '[REDACTED_API_KEY]')
+]
+for regex, replacement in patterns:
+    raw = regex.sub(replacement, raw)
+
 print(json.dumps({'timestamp': os.environ['TIMESTAMP'], 'event': 'parse_error', 'raw': raw}))
 " >> "$OBSERVATIONS_FILE"
   exit 0
+fi
+
+# Purge archived observation files older than retention window
+mkdir -p "$OBSERVATIONS_ARCHIVE_DIR"
+if command -v find >/dev/null 2>&1; then
+  find "$OBSERVATIONS_ARCHIVE_DIR" -type f -name 'observations-*.jsonl' -mtime +"$OBSERVATION_RETENTION_DAYS" -delete 2>/dev/null || true
 fi
 
 # Archive if file too large (atomic: rename with unique suffix to avoid race)
 if [ -f "$OBSERVATIONS_FILE" ]; then
   file_size_mb=$(du -m "$OBSERVATIONS_FILE" 2>/dev/null | cut -f1)
   if [ "${file_size_mb:-0}" -ge "$MAX_FILE_SIZE_MB" ]; then
-    archive_dir="${PROJECT_DIR}/observations.archive"
-    mkdir -p "$archive_dir"
-    mv "$OBSERVATIONS_FILE" "$archive_dir/observations-$(date +%Y%m%d-%H%M%S)-$$.jsonl" 2>/dev/null || true
+    mv "$OBSERVATIONS_FILE" "$OBSERVATIONS_ARCHIVE_DIR/observations-$(date +%Y%m%d-%H%M%S)-$$.jsonl" 2>/dev/null || true
   fi
 fi
 
@@ -154,7 +171,23 @@ export PROJECT_NAME_ENV="$PROJECT_NAME"
 export TIMESTAMP="$timestamp"
 
 echo "$PARSED" | python3 -c "
-import json, sys, os
+import json, re, sys, os
+
+
+def scrub(value):
+    if value is None:
+        return None
+    text = str(value)
+    patterns = [
+        (re.compile(r'(?i)(authorization\\s*[:=]\\s*(?:bearer\\s+)?)[^\\s,}]+'), r'\\1[REDACTED]'),
+        (re.compile(r'(?i)((?:api[_-]?key|token|password|secret|passwd|client[_-]?secret)\\s*[:=]\\s*)[^\\s,}]+'), r'\\1[REDACTED]'),
+        (re.compile(r'\\bgh[pousr]_[A-Za-z0-9]{20,}\\b'), '[REDACTED_GITHUB_TOKEN]'),
+        (re.compile(r'\\bsk-[A-Za-z0-9]{20,}\\b'), '[REDACTED_API_KEY]')
+    ]
+    for regex, replacement in patterns:
+        text = regex.sub(replacement, text)
+    return text
+
 
 parsed = json.load(sys.stdin)
 observation = {
@@ -167,9 +200,9 @@ observation = {
 }
 
 if parsed['input']:
-    observation['input'] = parsed['input']
+    observation['input'] = scrub(parsed['input'])
 if parsed['output'] is not None:
-    observation['output'] = parsed['output']
+    observation['output'] = scrub(parsed['output'])
 
 print(json.dumps(observation))
 " >> "$OBSERVATIONS_FILE"

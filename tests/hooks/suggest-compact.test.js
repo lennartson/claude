@@ -50,8 +50,12 @@ function runCompact(envOverrides = {}) {
 /**
  * Get the counter file path for a given session ID.
  */
+function sanitizeSessionId(sessionId) {
+  return String(sessionId || 'default').replace(/[^a-zA-Z0-9_-]/g, '') || 'default';
+}
+
 function getCounterFilePath(sessionId) {
-  return path.join(os.tmpdir(), `claude-tool-count-${sessionId}`);
+  return path.join(os.tmpdir(), `claude-tool-count-${sanitizeSessionId(sessionId)}`);
 }
 
 function runTests() {
@@ -362,6 +366,24 @@ function runTests() {
       assert.strictEqual(count, 1, 'Counter should be 1 for first run with default session');
     } finally {
       try { fs.unlinkSync(defaultCounterFile); } catch (_err) { /* ignore */ }
+    }
+  })) passed++;
+  else failed++;
+
+  if (test('sanitizes unsafe CLAUDE_SESSION_ID characters in counter filename', () => {
+    const unsafeSession = '../bad/session:?*';
+    const sanitizedCounterFile = getCounterFilePath(unsafeSession);
+    try { fs.unlinkSync(sanitizedCounterFile); } catch (_err) { /* ignore */ }
+    try {
+      const result = runCompact({ CLAUDE_SESSION_ID: unsafeSession });
+      assert.strictEqual(result.code, 0, 'Should exit 0');
+      assert.ok(fs.existsSync(sanitizedCounterFile), 'Counter file should be created with sanitized session ID');
+      assert.ok(
+        path.dirname(sanitizedCounterFile) === os.tmpdir(),
+        'Sanitized counter file should remain in temp directory'
+      );
+    } finally {
+      try { fs.unlinkSync(sanitizedCounterFile); } catch (_err) { /* ignore */ }
     }
   })) passed++;
   else failed++;
