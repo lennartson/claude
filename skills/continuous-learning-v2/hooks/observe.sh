@@ -72,6 +72,13 @@ if [ -f "$CONFIG_DIR/disabled" ]; then
   exit 0
 fi
 
+# Auto-purge observation files older than 30 days (runs once per session)
+PURGE_MARKER="${PROJECT_DIR}/.last-purge"
+if [ ! -f "$PURGE_MARKER" ] || [ "$(find "$PURGE_MARKER" -mtime +1 2>/dev/null)" ]; then
+  find "${_CLV2_PROJECTS_DIR:-$CONFIG_DIR/projects}" -name "observations*.jsonl" -mtime +30 -delete 2>/dev/null || true
+  touch "$PURGE_MARKER" 2>/dev/null || true
+fi
+
 # Parse using python via stdin pipe (safe for all JSON payloads)
 # Pass HOOK_PHASE via env var since Claude Code does not include hook type in stdin JSON
 PARSED=$(echo "$INPUT_JSON" | HOOK_PHASE="$HOOK_PHASE" python3 -c '
@@ -147,6 +154,7 @@ if [ -f "$OBSERVATIONS_FILE" ]; then
 fi
 
 # Build and write observation (now includes project context)
+# Scrub common secret patterns from tool I/O before persisting
 timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 export PROJECT_ID_ENV="$PROJECT_ID"
@@ -154,7 +162,7 @@ export PROJECT_NAME_ENV="$PROJECT_NAME"
 export TIMESTAMP="$timestamp"
 
 echo "$PARSED" | python3 -c "
-import json, sys, os
+import json, sys, os, re
 
 parsed = json.load(sys.stdin)
 observation = {
@@ -166,10 +174,24 @@ observation = {
     'project_name': os.environ.get('PROJECT_NAME_ENV', 'global')
 }
 
+# Scrub secrets: match common key=value, key: value, and key\"value patterns
+_SECRET_RE = re.compile(
+    r'(?i)(api[_-]?key|token|secret|password|authorization|credentials?|auth)'
+    r'([\"'\''\\s:=]+)'
+    r'[\"'\''\\s]*'
+    r'([A-Za-z0-9_\-/.+=]{8,})',
+    re.IGNORECASE
+)
+
+def scrub(val):
+    if val is None:
+        return None
+    return _SECRET_RE.sub(r'\1\2[REDACTED]', str(val))
+
 if parsed['input']:
-    observation['input'] = parsed['input']
+    observation['input'] = scrub(parsed['input'])
 if parsed['output'] is not None:
-    observation['output'] = parsed['output']
+    observation['output'] = scrub(parsed['output'])
 
 print(json.dumps(observation))
 " >> "$OBSERVATIONS_FILE"

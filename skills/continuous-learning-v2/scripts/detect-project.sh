@@ -64,6 +64,11 @@ _clv2_detect_project() {
     fi
   fi
 
+  # Strip embedded credentials from remote URL (e.g., https://ghp_xxxx@github.com/...)
+  if [ -n "$remote_url" ]; then
+    remote_url=$(printf '%s' "$remote_url" | sed -E 's|://[^@]+@|://|')
+  fi
+
   local hash_input="${remote_url:-$project_root}"
   # Use SHA256 via python3 (portable across macOS/Linux, no shasum/sha256sum divergence)
   project_id=$(printf '%s' "$hash_input" | python3 -c "import sys,hashlib; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])" 2>/dev/null)

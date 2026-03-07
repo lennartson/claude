@@ -339,6 +339,12 @@ function commandExists(cmd) {
  * @param {object} options - execSync options
  */
 function runCommand(cmd, options = {}) {
+  // Allowlist: only permit known-safe command prefixes
+  const allowedPrefixes = ['git ', 'node ', 'npx ', 'which ', 'where '];
+  if (!allowedPrefixes.some(prefix => cmd.startsWith(prefix))) {
+    return { success: false, output: `runCommand blocked: unrecognized command prefix in "${cmd}"` };
+  }
+
   try {
     const result = execSync(cmd, {
       encoding: 'utf8',
