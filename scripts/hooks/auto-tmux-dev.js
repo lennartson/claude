@@ -59,7 +59,7 @@ process.stdin.on('end', () => {
       if (process.platform === 'win32') {
         // Windows: open in a new cmd window (non-blocking)
         // Escape double quotes in cmd for cmd /k syntax
-        const escapedCmd = cmd.replace(/"/g, '\\"');
+        const escapedCmd = cmd.replace(/"/g, '""');
         input.tool_input.command = `start "DevServer-${sessionName}" cmd /k "${escapedCmd}"`;
       } else {
         // Unix (macOS/Linux): Check tmux is available before transforming
