@@ -10,6 +10,10 @@
 4. **Grep for proof** - Actually run verification commands, don't assume they'll pass
 5. **Ask "What did I miss?"** - Assume you missed something. Find it.
 
+## Code Reasoning
+
+When reasoning about code behavior (debugging, reviewing, comparing implementations), use semi-formal reasoning: explicit premises, traced execution paths, counterexamples, then conclusion from evidence only. NEVER conclude without tracing. Claims about code behavior must cite file:line evidence.
+
 ## Anti-Patterns to Catch
 
 | You Think | You Must |
