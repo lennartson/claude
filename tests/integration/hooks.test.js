@@ -181,6 +181,7 @@ async function runTests() {
   const scriptsDir = path.join(__dirname, '..', '..', 'scripts', 'hooks');
   const hooksJsonPath = path.join(__dirname, '..', '..', 'hooks', 'hooks.json');
   const hooks = JSON.parse(fs.readFileSync(hooksJsonPath, 'utf8'));
+  const devServerBlockerPath = path.join(scriptsDir, 'pre-bash-dev-server-block.js');
 
   // ==========================================
   // Input Format Tests
@@ -253,8 +254,7 @@ async function runTests() {
 
   if (await asyncTest('blocking hooks output BLOCKED message', async () => {
     // Test the dev server blocking hook — must send a matching command
-    const blockingCommand = hooks.hooks.PreToolUse[0].hooks[0].command;
-    const result = await runHookCommand(blockingCommand, {
+    const result = await runHookWithInput(devServerBlockerPath, {
       tool_input: { command: 'npm run dev' }
     });
 
@@ -279,8 +279,7 @@ async function runTests() {
 
   if (await asyncTest('blocking hooks exit with code 2', async () => {
     // The dev server blocker blocks when a dev server command is detected
-    const blockingCommand = hooks.hooks.PreToolUse[0].hooks[0].command;
-    const result = await runHookCommand(blockingCommand, {
+    const result = await runHookWithInput(devServerBlockerPath, {
       tool_input: { command: 'yarn dev' }
     });
 
@@ -293,7 +292,6 @@ async function runTests() {
   })) passed++; else failed++;
 
   if (await asyncTest('dev server blocker ignores heredoc prose in non-dev commands', async () => {
-    const blockingCommand = hooks.hooks.PreToolUse[0].hooks[0].command;
     const heredocCommand = [
       'gh pr create --title "test" --body "$(cat <<\'EOF\'',
       '## Test plan',
@@ -303,7 +301,7 @@ async function runTests() {
       'EOF',
       ')"'
     ].join('\n');
-    const result = await runHookCommand(blockingCommand, {
+    const result = await runHookWithInput(devServerBlockerPath, {
       tool_input: { command: heredocCommand }
     });
 
@@ -312,11 +310,10 @@ async function runTests() {
   })) passed++; else failed++;
 
   if (await asyncTest('dev server blocker handles env/sudo prefixed dev commands', async () => {
-    const blockingCommand = hooks.hooks.PreToolUse[0].hooks[0].command;
-    const envResult = await runHookCommand(blockingCommand, {
+    const envResult = await runHookWithInput(devServerBlockerPath, {
       tool_input: { command: 'env -i npm run dev' }
     });
-    const sudoResult = await runHookCommand(blockingCommand, {
+    const sudoResult = await runHookWithInput(devServerBlockerPath, {
       tool_input: { command: 'sudo -u root npm run dev' }
     });
 
