@@ -701,6 +701,49 @@ async function runTests() {
     assert.ok(result.stdout.includes('tool_input'), 'Should pass through original data');
   })) passed++; else failed++;
 
+  if (await asyncTest('finds formatter config in parent dirs even without package.json', async () => {
+    const testDir = createTestDir();
+    const repoRoot = path.join(testDir, 'config-only-repo');
+    const nestedDir = path.join(repoRoot, 'src', 'nested');
+    const targetFile = path.join(nestedDir, 'file.ts');
+    const binDir = path.join(testDir, 'bin');
+    const logFile = path.join(testDir, 'npx-log.json');
+
+    fs.mkdirSync(nestedDir, { recursive: true });
+    fs.mkdirSync(binDir, { recursive: true });
+    fs.writeFileSync(path.join(repoRoot, 'biome.json'), '{}\n');
+    fs.writeFileSync(targetFile, 'const value = 1;\n');
+    fs.writeFileSync(
+      path.join(binDir, 'npx'),
+      `#!/usr/bin/env node\nconst fs = require('fs');\nfs.writeFileSync(${JSON.stringify(logFile)}, JSON.stringify({ cwd: process.cwd(), args: process.argv.slice(2) }));\n`,
+      { mode: 0o755 }
+    );
+
+    try {
+      const stdinJson = JSON.stringify({ tool_input: { file_path: targetFile } });
+      const result = await runScript(path.join(scriptsDir, 'post-edit-format.js'), stdinJson, {
+        PATH: `${binDir}${path.delimiter}${process.env.PATH || ''}`,
+      });
+
+      assert.strictEqual(result.code, 0, 'Should exit 0 for config-only repos');
+      assert.ok(fs.existsSync(logFile), 'Should invoke formatter when parent biome config exists');
+
+      const invocation = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+      assert.strictEqual(
+        fs.realpathSync(invocation.cwd),
+        fs.realpathSync(repoRoot),
+        'Should run formatter from discovered repo root'
+      );
+      assert.deepStrictEqual(
+        invocation.args,
+        ['@biomejs/biome', 'format', '--write', targetFile],
+        'Should invoke biome formatter for config-only repo'
+      );
+    } finally {
+      cleanupTestDir(testDir);
+    }
+  })) passed++; else failed++;
+
   // post-edit-typecheck.js tests
   console.log('\npost-edit-typecheck.js:');
 
