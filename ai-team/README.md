@@ -2,6 +2,8 @@
 
 This package converts the reusable parts of Everything Claude Code into a Codex-native AI engineering workflow.
 
+It now also includes a runnable self-evolving agent runtime in `agent_system/` plus file-backed memory in `agent_memory/` and `agent_skills/`.
+
 ## Source Mapping
 
 The prompts in this folder were derived from these ECC building blocks:
@@ -39,7 +41,9 @@ ai-team/
     build-feature.md
     debug-issue.md
     debug-system.md
+    learn-from-run.md
     refactor-module.md
+    run-agent-system.md
     design-system.md
     design-new-system.md
     start-new-project.md
@@ -97,6 +101,20 @@ For existing codebases:
 - Bug or regression: `ai-team/workflows/debug-issue.md` or `ai-team/workflows/debug-system.md`
 - Refactor: `ai-team/workflows/refactor-module.md`
 - New subsystem or greenfield service: `ai-team/workflows/design-system.md` or `ai-team/workflows/design-new-system.md`
+- Operate the self-evolving runtime: `ai-team/workflows/run-agent-system.md`
+- Learn from a completed run: `ai-team/workflows/learn-from-run.md`
+
+## Runtime Integration
+
+Use the runnable agent system when you want Codex to exercise the full Planner → Architect → Builder → Evaluator → Reflection loop through the CLI:
+
+```bash
+npm run agent -- "Build a SaaS analytics dashboard"
+npm run agent:plan -- "Design a billing subsystem"
+npm run agent:learn -- --episode latest
+```
+
+The same runtime is available to Claude Code through the terminal and the `claude_provider.ts` adapter.
 
 ## Large Codebase Guidance
 
