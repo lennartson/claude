@@ -106,12 +106,9 @@ fi
 #   - All-night Haiku usage with no human activity
 # ─────────────────────────────────────────────
 
-# Layer 1: Skip subagent sessions — agent_id is only present when a hook fires
-# inside a subagent (automated by definition, never a human interactive session)
-_ECC_AGENT_ID=$(echo "$INPUT_JSON" | "$PYTHON_CMD" -c "import json,sys; print(json.load(sys.stdin).get('agent_id',''))" 2>/dev/null || true)
-[ -n "$_ECC_AGENT_ID" ] && exit 0
+# Env-var checks first (cheapest — no subprocess spawning):
 
-# Layer 2: CLAUDE_CODE_ENTRYPOINT — set by Claude Code itself to indicate how
+# Layer 1: CLAUDE_CODE_ENTRYPOINT — set by Claude Code itself to indicate how
 # it was invoked. Non-interactive SDK/programmatic sessions use sdk-ts, sdk-py,
 # sdk-cli, mcp, or remote. Interactive terminal sessions use "cli".
 # This universally catches automation from ANY tool using the Anthropic SDK
@@ -120,19 +117,31 @@ case "${CLAUDE_CODE_ENTRYPOINT:-cli}" in
   sdk-ts|sdk-py|sdk-cli|mcp|remote) exit 0 ;;
 esac
 
-# Layer 3: Respect ECC_HOOK_PROFILE=minimal — suppresses non-essential hooks
+# Layer 2: Respect ECC_HOOK_PROFILE=minimal — suppresses non-essential hooks
 [ "${ECC_HOOK_PROFILE:-standard}" = "minimal" ] && exit 0
 
-# Layer 4: Cooperative skip env var — tools like claude-mem can set this
+# Layer 3: Cooperative skip env var — tools like claude-mem can set this
 # (export ECC_SKIP_OBSERVE=1) before spawning their automated sessions
 [ "${ECC_SKIP_OBSERVE:-0}" = "1" ] && exit 0
 
-# Layer 5: CWD path exclusions — skip known observer-session directories
-# Add custom paths via ECC_OBSERVE_SKIP_PATHS (comma-separated substrings)
+# Layer 4: Skip subagent sessions — agent_id is only present when a hook fires
+# inside a subagent (automated by definition, never a human interactive session).
+# Placed after env-var checks to avoid a Python subprocess on sessions that
+# already exit via Layers 1-3.
+_ECC_AGENT_ID=$(echo "$INPUT_JSON" | "$PYTHON_CMD" -c "import json,sys; print(json.load(sys.stdin).get('agent_id',''))" 2>/dev/null || true)
+[ -n "$_ECC_AGENT_ID" ] && exit 0
+
+# Layer 5: CWD path exclusions — skip known observer-session directories.
+# Add custom paths via ECC_OBSERVE_SKIP_PATHS (comma-separated substrings).
+# Whitespace is trimmed from each pattern; empty patterns are skipped to
+# prevent an empty-string glob from matching every path.
 _ECC_SKIP_PATHS="${ECC_OBSERVE_SKIP_PATHS:-observer-sessions,.claude-mem}"
 if [ -n "$STDIN_CWD" ]; then
   IFS=',' read -ra _ECC_SKIP_ARRAY <<< "$_ECC_SKIP_PATHS"
   for _pattern in "${_ECC_SKIP_ARRAY[@]}"; do
+    _pattern="${_pattern#"${_pattern%%[![:space:]]*}"}"   # trim leading whitespace
+    _pattern="${_pattern%"${_pattern##*[![:space:]]}"}"   # trim trailing whitespace
+    [ -z "$_pattern" ] && continue
     case "$STDIN_CWD" in *"$_pattern"*) exit 0 ;; esac
   done
 fi
