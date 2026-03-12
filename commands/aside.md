@@ -4,7 +4,7 @@ description: Answer a quick side question without interrupting or losing context
 
 # Aside Command
 
-Ask a question mid-task and get an immediate, focused answer — then continue right where you left off. The current task, files, and context are never touched.
+Ask a question mid-task and get an immediate, focused answer — then continue right where you left off. The current task, files, and context are never modified.
 
 ## When to Use
 
@@ -89,7 +89,13 @@ Wait for the user's answer — do not make assumptions.
 Answer from the live context. If the file was read earlier in the session, reference it directly. If not, read it now (read-only) and answer with a file:line reference.
 
 **No active task (nothing in progress when `/aside` is invoked):**
-Skip the freeze/resume framing and just answer the question directly as a normal response. Do not wrap it in the ASIDE format.
+Use a reduced wrapper that omits the "Back to task" line since there is nothing to resume:
+```
+ASIDE: [restate the question briefly]
+
+[Your answer here]
+```
+Do not include `— Back to task:` when there is no active task.
 
 **Question requires a long answer:**
 Give the essential answer concisely, then offer:
