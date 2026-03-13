@@ -34,7 +34,7 @@ and output a complete optimized prompt the user can paste and run.
 - User says "how should I use ECC for..."
 - User explicitly invokes `/prompt-optimize`
 
-**Do not use** when:
+### Do Not Use When
 
 - User wants the task done directly (just execute it)
 - User says "优化代码", "优化性能", "optimize this code", "optimize performance" — these are refactoring tasks, not prompt optimization
@@ -50,11 +50,13 @@ Do NOT write code, create files, run commands, or take any implementation
 action. Your ONLY output is an analysis plus an optimized prompt.
 
 If the user says "just do it", "直接做", or "don't optimize, just execute",
-do not switch into implementation mode. State that this skill only produces
-analysis plus an optimized prompt, and tell the user to make a normal task
-request if they want execution instead.
+do not switch into implementation mode inside this skill. Tell the user this
+skill only produces optimized prompts, and instruct them to make a normal
+task request if they want execution instead.
 
-Run these 6 phases sequentially. Present results using the Output Format below.
+Run this 6-phase pipeline sequentially. Present results using the Output Format below.
+
+### Analysis Pipeline
 
 ### Phase 0: Project Detection
 
@@ -118,7 +120,7 @@ Map intent + scope + tech stack (from Phase 0) to specific ECC components.
 | New Feature | /plan, /tdd, /code-review, /verify | tdd-workflow, verification-loop | planner, tdd-guide, code-reviewer |
 | Bug Fix | /tdd, /build-fix, /verify | tdd-workflow | tdd-guide, build-error-resolver |
 | Refactor | /refactor-clean, /code-review, /verify | verification-loop | refactor-cleaner, code-reviewer |
-| Research | /plan | search-first, iterative-retrieval | — (use Explore agent) |
+| Research | /plan | search-first, iterative-retrieval | — |
 | Testing | /tdd, /e2e, /test-coverage | tdd-workflow, e2e-testing | tdd-guide, e2e-runner |
 | Review | /code-review | security-review | code-reviewer, security-reviewer |
 | Documentation | /update-docs, /update-codemaps | — | doc-updater |
@@ -158,9 +160,9 @@ whether Phase 0 auto-detected it or the user must supply it:
 - [ ] **Existing patterns** — Reference files or conventions to follow?
 - [ ] **Scope boundaries** — What NOT to do?
 
-**If 3+ critical items are missing**, use AskUserQuestion to ask the user
-to clarify before generating the optimized prompt. Ask at most 3 questions
-in one round. Then incorporate answers into the optimized prompt.
+**If 3+ critical items are missing**, ask the user up to 3 clarification
+questions before generating the optimized prompt. Then incorporate the
+answers into the optimized prompt.
 
 ### Phase 5: Workflow & Model Recommendation
 
@@ -230,7 +232,7 @@ The prompt must be self-contained and ready to copy-paste. Include:
 - Scope boundaries (what NOT to do)
 
 For items that reference blueprint, write: "Use the blueprint skill to..."
-and do not present blueprint as a slash command.
+(not `/blueprint`, since blueprint is a skill, not a command).
 
 ### Section 4: Optimized Prompt — Quick Version
 
@@ -255,12 +257,19 @@ A compact version for experienced ECC users. Vary by intent type:
 
 ### Footer
 
-> Not what you need? Tell me what to adjust. If you want execution instead of
-> optimization, make a normal task request outside this skill.
+> Not what you need? Tell me what to adjust, or make a normal task request
+> if you want execution instead of prompt optimization.
 
 ---
 
 ## Examples
+
+### Trigger Examples
+
+- "Optimize this prompt for ECC"
+- "Rewrite this prompt so Claude Code uses the right commands"
+- "帮我优化这个指令"
+- "How should I prompt ECC for this task?"
 
 ### Example 1: Vague Chinese Prompt (Project Detected)
 
@@ -382,7 +391,6 @@ Recommended: Opus 4.6 for blueprint planning, Sonnet 4.6 for phase execution.
 |-----------|------------------|
 | `configure-ecc` | User hasn't set up ECC yet |
 | `skill-stocktake` | Audit which components are installed (use instead of hardcoded catalog) |
-| `brainstorming` | Creative or design-phase work — use before this skill |
 | `search-first` | Research phase in optimized prompts |
 | `blueprint` | EPIC-scope optimized prompts (invoke as skill, not command) |
 | `strategic-compact` | Long session context management |
