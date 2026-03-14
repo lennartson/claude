@@ -16,6 +16,14 @@ Comprehensive security guidance for Laravel applications to protect against comm
 - Managing secrets and environment settings
 - Hardening production deployments
 
+## How It Works
+
+- Middleware provides baseline protections (CSRF via `VerifyCsrfToken`, security headers via `SecurityHeaders`).
+- Guards and policies enforce access control (`auth:sanctum`, `$this->authorize`, policy middleware).
+- Form Requests validate and shape input (`UploadInvoiceRequest`) before it reaches services.
+- Rate limiting adds abuse protection (`RateLimiter::for('login')`) alongside auth controls.
+- Data safety comes from encrypted casts, mass-assignment guards, and signed routes (`URL::temporarySignedRoute` + `signed` middleware).
+
 ## Core Security Settings
 
 - `APP_DEBUG=false` in production
@@ -132,7 +140,7 @@ final class UploadInvoiceRequest extends FormRequest
 ```
 
 ```php
-$path = $request->file('invoice')->store('invoices', 'private');
+$path = $request->file('invoice')->store('invoices');
 ```
 
 ## Rate Limiting
@@ -183,12 +191,14 @@ final class SecurityHeaders
     {
         $response = $next($request);
 
-        return $response->withHeaders([
+        $response->headers->add([
             'Content-Security-Policy' => "default-src 'self'",
             'X-Frame-Options' => 'DENY',
             'X-Content-Type-Options' => 'nosniff',
             'Referrer-Policy' => 'no-referrer',
         ]);
+
+        return $response;
     }
 }
 ```
@@ -204,7 +214,13 @@ return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     'allowed_origins' => ['https://app.example.com'],
-    'allowed_headers' => ['Content-Type', 'Authorization', 'X-Requested-With'],
+    'allowed_headers' => [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'X-XSRF-TOKEN',
+        'X-CSRF-TOKEN',
+    ],
     'supports_credentials' => true,
 ];
 ```
@@ -219,7 +235,7 @@ use Illuminate\Support\Facades\Log;
 
 Log::info('User updated profile', [
     'user_id' => $user->id,
-    'email' => $user->email,
+    'email' => '[REDACTED]',
     'token' => '[REDACTED]',
 ]);
 ```

@@ -8,25 +8,43 @@ origin: ECC
 
 Test-driven development for Laravel applications using PHPUnit and Pest with 80%+ coverage (unit + feature).
 
-## When to Activate
+## When to Use
 
 - New features or endpoints in Laravel
 - Bug fixes or refactors
 - Testing Eloquent models, policies, jobs, and notifications
 
-## Red-Green-Refactor Cycle
+## How It Works
+
+### Red-Green-Refactor Cycle
 
 1) Write a failing test
 2) Implement the minimal change to pass
 3) Refactor while keeping tests green
 
-## Test Layers
+### Test Layers
 
 - **Unit**: pure PHP classes, value objects, services
 - **Feature**: HTTP endpoints, auth, validation, policies
 - **Integration**: database + queue + external boundaries
 
-## PHPUnit Example
+Choose layers based on scope:
+
+- Use **Unit** tests for pure business logic and services.
+- Use **Feature** tests for HTTP, auth, validation, and response shape.
+- Use **Integration** tests when validating DB/queues/external services together.
+
+### Database Strategy
+
+- `RefreshDatabase` for most tests (migrate + rollback)
+- `DatabaseTransactions` for faster unit/feature tests without migrations
+- `DatabaseMigrations` when you need fresh migrations per test
+
+Use `RefreshDatabase` when schemas change often or you need full migration coverage; use `DatabaseTransactions` for speed when schema is stable and migrations are already run.
+
+## Examples
+
+### PHPUnit Example
 
 ```php
 final class ProjectControllerTest extends TestCase
@@ -47,23 +65,32 @@ final class ProjectControllerTest extends TestCase
 }
 ```
 
-## Feature Test Example (HTTP Layer)
+### Feature Test Example (HTTP Layer)
 
 ```php
 use App\Models\Project;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-public function test_projects_index_returns_paginated_results(): void
+final class ProjectIndexTest extends TestCase
 {
-    Project::factory()->count(3)->create();
+    use RefreshDatabase;
 
-    $response = $this->getJson('/api/projects');
+    public function test_projects_index_returns_paginated_results(): void
+    {
+        $user = User::factory()->create();
+        Project::factory()->count(3)->create();
 
-    $response->assertOk();
-    $response->assertJsonStructure(['data', 'links', 'meta']);
+        $response = $this->actingAs($user)->getJson('/api/projects');
+
+        $response->assertOk();
+        $response->assertJsonStructure(['data', 'links', 'meta']);
+    }
 }
 ```
 
-## Pest Example
+### Pest Example
 
 ```php
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -82,7 +109,7 @@ test('owner can create project', function () {
 });
 ```
 
-## Factories and States
+### Factories and States
 
 - Use factories for test data
 - Define states for edge cases (archived, admin, trial)
@@ -91,19 +118,13 @@ test('owner can create project', function () {
 $user = User::factory()->state(['role' => 'admin'])->create();
 ```
 
-## Database Strategies
-
-- `RefreshDatabase` for most tests (migrate + rollback)
-- `DatabaseTransactions` for faster unit/feature tests without migrations
-- `DatabaseMigrations` when you need fresh migrations per test
-
-## Database Testing
+### Database Testing
 
 - Use `RefreshDatabase` for clean state
 - Keep tests isolated and deterministic
 - Prefer `assertDatabaseHas` over manual queries
 
-## Persistence Test Example
+### Persistence Test Example
 
 ```php
 use App\Models\Project;
@@ -118,7 +139,7 @@ public function test_project_can_be_retrieved_by_slug(): void
 }
 ```
 
-## Fakes for Side Effects
+### Fakes for Side Effects
 
 - `Bus::fake()` for jobs
 - `Queue::fake()` for queued work
@@ -145,7 +166,7 @@ $user->notify(new InvoiceReady($invoice));
 Notification::assertSentTo($user, InvoiceReady::class);
 ```
 
-## Auth Testing (Sanctum)
+### Auth Testing (Sanctum)
 
 ```php
 use Laravel\Sanctum\Sanctum;
@@ -156,28 +177,28 @@ $response = $this->getJson('/api/projects');
 $response->assertOk();
 ```
 
-## HTTP and External Services
+### HTTP and External Services
 
 - Use `Http::fake()` to isolate external APIs
 - Assert outbound payloads with `Http::assertSent()`
 
-## Coverage Targets
+### Coverage Targets
 
 - Enforce 80%+ coverage for unit + feature tests
 - Use `phpdbg` or `XDEBUG_MODE=coverage` in CI
 
-## Test Commands
+### Test Commands
 
 - `php artisan test`
 - `vendor/bin/phpunit`
 - `vendor/bin/pest`
 
-## Test Configuration
+### Test Configuration
 
 - Use `phpunit.xml` to set `DB_CONNECTION=sqlite` and `DB_DATABASE=:memory:` for fast tests
 - Keep separate env for tests to avoid touching dev/prod data
 
-## Authorization Tests
+### Authorization Tests
 
 ```php
 use Illuminate\Support\Facades\Gate;

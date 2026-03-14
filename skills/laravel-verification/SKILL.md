@@ -8,12 +8,20 @@ origin: ECC
 
 Run before PRs, after major changes, and pre-deploy.
 
-## When to Activate
+## When to Use
 
 - Before opening a pull request for a Laravel project
 - After major refactors or dependency upgrades
 - Pre-deployment verification for staging or production
 - Running full lint -> test -> security -> deploy readiness pipeline
+
+## How It Works
+
+- Run phases sequentially from environment checks through deployment readiness so each layer builds on the last.
+- Environment and Composer checks gate everything else; stop immediately if they fail.
+- Linting/static analysis should be clean before running full tests and coverage.
+- Security and migration reviews happen after tests so you verify behavior before data or release steps.
+- Build/deploy readiness and queue/scheduler checks are final gates; any failure blocks release.
 
 ## Phase 1: Environment Checks
 
@@ -88,7 +96,7 @@ php artisan migrate:status
 ```
 
 - Review destructive migrations carefully
-- Ensure migration filenames follow `YYYY_MM_DD_HHMMSS_*` and describe the change clearly
+- Ensure migration filenames follow `Y_m_d_His_*` (e.g., `2025_03_14_154210_create_orders_table.php`) and describe the change clearly
 - Ensure rollbacks are possible
 - Verify `down()` methods and avoid irreversible data loss without explicit backups
 
@@ -117,4 +125,37 @@ If Horizon is used:
 
 ```bash
 php artisan horizon:status
+```
+
+## Examples
+
+Minimal flow:
+
+```bash
+php -v
+composer validate
+vendor/bin/pint --test
+vendor/bin/phpstan analyse
+php artisan test
+composer audit
+php artisan migrate --pretend
+php artisan config:cache
+php artisan queue:work --once
+```
+
+CI-style pipeline:
+
+```bash
+composer validate
+composer dump-autoload -o
+vendor/bin/pint --test
+vendor/bin/phpstan analyse
+XDEBUG_MODE=coverage php artisan test --coverage
+composer audit
+php artisan migrate --pretend
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan schedule:list
 ```

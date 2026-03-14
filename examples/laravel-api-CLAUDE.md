@@ -54,7 +54,7 @@ All API responses use a consistent envelope:
 ### Error Handling
 
 - Throw domain exceptions in services
-- Map exceptions to HTTP responses in `app/Exceptions/Handler.php`
+- Map exceptions to HTTP responses in `bootstrap/app.php` via `withExceptions`
 - Never expose internal errors to clients
 
 ### Code Style
@@ -159,7 +159,7 @@ final class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_id' => ['required', 'integer', 'exists:customers,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.sku' => ['required', 'string'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -169,8 +169,8 @@ final class StoreOrderRequest extends FormRequest
     public function toDto(): CreateOrderData
     {
         return new CreateOrderData(
-            customerId: (int) $this->input('customer_id'),
-            items: $this->input('items'),
+            userId: (int) $this->validated('user_id'),
+            items: $this->validated('items'),
         );
     }
 }
@@ -213,15 +213,16 @@ final class SendOrderConfirmation implements ShouldQueue
 ### Test Pattern (Pest)
 
 ```php
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('customer can place order', function () {
+test('user can place order', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->postJson('/api/orders', [
-        'customer_id' => 1,
+        'user_id' => $user->id,
         'items' => [['sku' => 'sku-1', 'quantity' => 2]],
     ]);
 
@@ -233,16 +234,18 @@ test('customer can place order', function () {
 ### Test Pattern (PHPUnit)
 
 ```php
+use App\Models\User;
+
 final class OrdersControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_customer_can_place_order(): void
+    public function test_user_can_place_order(): void
     {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->postJson('/api/orders', [
-            'customer_id' => 1,
+            'user_id' => $user->id,
             'items' => [['sku' => 'sku-1', 'quantity' => 2]],
         ]);
 

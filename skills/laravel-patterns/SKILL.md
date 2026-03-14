@@ -103,23 +103,24 @@ Route::scopeBindings()->group(function () {
 
 ### Nested Routes and Binding Names
 
-- Keep prefixes and paths consistent to avoid double nesting (e.g., `chat` vs `chats`).
-- Use a single parameter name that matches the bound model (e.g., `{conversation}` for `AiConversation`).
+- Keep prefixes and paths consistent to avoid double nesting (e.g., `conversation` vs `conversations`).
+- Use a single parameter name that matches the bound model (e.g., `{conversation}` for `Conversation`).
 - Prefer scoped bindings when nesting to enforce parent-child relationships.
 
 ```php
-use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\MessageController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
-    Route::post('/', [ChatController::class, 'store'])->name('chat.store');
+Route::middleware('auth:sanctum')->prefix('conversations')->group(function () {
+    Route::post('/', [ConversationController::class, 'store'])->name('conversations.store');
 
-    Route::prefix('chat/{conversation}')->scopeBindings()->group(function () {
-        Route::delete('', [ChatController::class, 'destroyChat'])
-            ->name('chat.destroy');
+    Route::scopeBindings()->group(function () {
+        Route::delete('/{conversation}', [ConversationController::class, 'destroy'])
+            ->name('conversations.destroy');
 
-        Route::post('message', [ChatController::class, 'storeMessage'])
-            ->name('chat-message.store');
+        Route::post('/{conversation}/messages', [MessageController::class, 'store'])
+            ->name('conversation-messages.store');
     });
 });
 ```
@@ -127,10 +128,10 @@ Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
 If the model class name differs from the route param, define explicit binding:
 
 ```php
-use App\Models\AiConversation;
+use App\Models\Conversation;
 use Illuminate\Support\Facades\Route;
 
-Route::model('conversation', AiConversation::class);
+Route::model('conversation', Conversation::class);
 ```
 
 ## Service Container Bindings
@@ -219,12 +220,16 @@ final class ProjectQuery
 
     public function ownedBy(int $userId): self
     {
-        return new self($this->query->where('owner_id', $userId));
+        $query = clone $this->query;
+
+        return new self($query->where('owner_id', $userId));
     }
 
     public function active(): self
     {
-        return new self($this->query->whereNull('archived_at'));
+        $query = clone $this->query;
+
+        return new self($query->whereNull('archived_at'));
     }
 
     public function builder(): Builder
