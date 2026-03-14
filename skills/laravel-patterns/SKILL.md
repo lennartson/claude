@@ -86,7 +86,12 @@ final class OrdersController extends Controller
     {
         $order = $this->createOrder->handle($request->toDto());
 
-        return response()->json(OrderResource::make($order));
+        return response()->json([
+            'success' => true,
+            'data' => OrderResource::make($order),
+            'error' => null,
+            'meta' => null,
+        ], 201);
     }
 }
 ```
