@@ -167,8 +167,11 @@ final class StoreOrderRequest extends FormRequest
 
     public function toDto(): CreateOrderData
     {
+        $user = $this->user();
+        abort_unless($user, 401);
+
         return new CreateOrderData(
-            userId: (int) $this->user()->id,
+            userId: (int) $user->id,
             items: $this->validated('items'),
         );
     }
@@ -195,9 +198,15 @@ final class OrderResource extends JsonResource
 ### Queue Job
 
 ```php
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
 final class SendOrderConfirmation implements ShouldQueue
 {
-    use Dispatchable, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(private int $orderId) {}
 
@@ -233,6 +242,8 @@ test('user can place order', function () {
 
 ```php
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 final class OrdersControllerTest extends TestCase
 {

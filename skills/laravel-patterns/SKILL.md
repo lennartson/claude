@@ -8,7 +8,7 @@ origin: ECC
 
 Production-grade Laravel architecture patterns for scalable, maintainable applications.
 
-## When to Activate
+## When to Use
 
 - Building Laravel web applications or APIs
 - Structuring controllers, services, and domain logic
@@ -16,7 +16,17 @@ Production-grade Laravel architecture patterns for scalable, maintainable applic
 - Designing APIs with resources and pagination
 - Adding queues, events, caching, and background jobs
 
-## Project Structure
+## How It Works
+
+- Structure the app around clear boundaries (controllers -> services/actions -> models).
+- Use explicit bindings and route model scoping to keep routing safe and predictable.
+- Favor typed models, casts, and scopes to keep domain logic consistent.
+- Keep IO-heavy work in queues and cache expensive reads.
+- Centralize config in `config/*` and keep environments explicit.
+
+## Examples
+
+### Project Structure
 
 ### Recommended Layout
 
@@ -79,7 +89,7 @@ final class OrdersController extends Controller
 }
 ```
 
-## Routing and Controllers
+### Routing and Controllers
 
 Prefer route-model binding and resource controllers for clarity.
 
@@ -128,7 +138,7 @@ Route::middleware('auth:sanctum')->prefix('conversations')->group(function () {
 });
 ```
 
-If the model class name differs from the route param, define explicit binding:
+If you need custom binding logic or want a parameter to resolve to a different model class, define explicit binding:
 
 ```php
 use App\Models\AiConversation;
@@ -137,7 +147,7 @@ use Illuminate\Support\Facades\Route;
 Route::model('conversation', AiConversation::class);
 ```
 
-## Service Container Bindings
+### Service Container Bindings
 
 Bind interfaces to implementations in a service provider for clear dependency wiring.
 
@@ -155,7 +165,7 @@ final class AppServiceProvider extends ServiceProvider
 }
 ```
 
-## Eloquent Model Patterns
+### Eloquent Model Patterns
 
 ### Model Configuration
 
@@ -280,7 +290,7 @@ final class Project extends Model
 $projects = Project::ownedBy($user->id)->get();
 ```
 
-## Transactions for Multi-Step Updates
+### Transactions for Multi-Step Updates
 
 ```php
 use Illuminate\Support\Facades\DB;
@@ -291,7 +301,7 @@ DB::transaction(function (): void {
 });
 ```
 
-## Migrations
+### Migrations
 
 ### Naming Convention
 
@@ -326,7 +336,7 @@ return new class extends Migration
 };
 ```
 
-## Form Requests and Validation
+### Form Requests and Validation
 
 Keep validation in form requests and transform inputs to DTOs.
 
@@ -353,7 +363,7 @@ final class StoreOrderRequest extends FormRequest
 }
 ```
 
-## API Resources
+### API Resources
 
 Keep API responses consistent with resources and pagination.
 
@@ -363,19 +373,19 @@ return ProjectResource::collection(
 );
 ```
 
-## Events, Jobs, and Queues
+### Events, Jobs, and Queues
 
 - Emit domain events for side effects (emails, analytics)
 - Use queued jobs for slow work (reports, exports, webhooks)
 - Prefer idempotent handlers with retries and backoff
 
-## Caching
+### Caching
 
 - Cache read-heavy endpoints and expensive queries
 - Invalidate caches on model events (created/updated/deleted)
 - Use tags when caching related data for easy invalidation
 
-## Configuration and Environments
+### Configuration and Environments
 
 - Keep secrets in `.env` and config in `config/*.php`
 - Use per-environment config overrides and `config:cache` in production

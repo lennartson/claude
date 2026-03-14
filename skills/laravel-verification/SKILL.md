@@ -132,6 +132,14 @@ If `queue:monitor` is available, use it to check backlog without processing jobs
 php artisan queue:monitor default --max=100
 ```
 
+Active verification (staging only): dispatch a no-op job to a dedicated queue and run a single worker to process it.
+
+```bash
+php artisan queue:work --once --queue=healthcheck
+```
+
+Only run this on non-production environments where processing a test job is safe.
+
 ## Examples
 
 Minimal flow:
