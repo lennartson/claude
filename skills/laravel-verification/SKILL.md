@@ -27,6 +27,13 @@ php artisan --version
 - Confirm `APP_DEBUG=false` for production environments
 - Confirm `APP_ENV` matches the target deployment (`production`, `staging`)
 
+If using Laravel Sail locally:
+
+```bash
+./vendor/bin/sail php -v
+./vendor/bin/sail artisan --version
+```
+
 ## Phase 1.5: Composer and Autoload
 
 ```bash

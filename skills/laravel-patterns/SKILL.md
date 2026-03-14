@@ -101,6 +101,38 @@ Route::scopeBindings()->group(function () {
 });
 ```
 
+### Nested Routes and Binding Names
+
+- Keep prefixes and paths consistent to avoid double nesting (e.g., `chat` vs `chats`).
+- Use a single parameter name that matches the bound model (e.g., `{conversation}` for `AiConversation`).
+- Prefer scoped bindings when nesting to enforce parent-child relationships.
+
+```php
+use App\Http\Controllers\Api\ChatController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
+    Route::post('/', [ChatController::class, 'store'])->name('chat.store');
+
+    Route::prefix('chat/{conversation}')->scopeBindings()->group(function () {
+        Route::delete('', [ChatController::class, 'destroyChat'])
+            ->name('chat.destroy');
+
+        Route::post('message', [ChatController::class, 'storeMessage'])
+            ->name('chat-message.store');
+    });
+});
+```
+
+If the model class name differs from the route param, define explicit binding:
+
+```php
+use App\Models\AiConversation;
+use Illuminate\Support\Facades\Route;
+
+Route::model('conversation', AiConversation::class);
+```
+
 ## Service Container Bindings
 
 Bind interfaces to implementations in a service provider for clear dependency wiring.
