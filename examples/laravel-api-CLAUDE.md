@@ -154,6 +154,9 @@ final class OrdersController extends Controller
 
 declare(strict_types=1);
 
+use App\Models\Order;
+use App\Models\User;
+
 final class OrderPolicy
 {
     public function view(User $user, Order $order): bool

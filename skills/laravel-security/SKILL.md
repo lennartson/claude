@@ -159,7 +159,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
 RateLimiter::for('login', function (Request $request) {
-    return Limit::perMinute(5)->by($request->ip());
+    return [
+        Limit::perMinute(5)->by($request->ip()),
+        Limit::perMinute(5)->by(strtolower((string) $request->input('email'))),
+    ];
 });
 ```
 
