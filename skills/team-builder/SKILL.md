@@ -6,7 +6,7 @@ origin: community
 
 # Team Builder
 
-Interactive menu for browsing and composing agent teams on demand. Works with any collection of agent markdown files organized by domain subdirectories.
+Interactive menu for browsing and composing agent teams on demand. Works with flat or domain-subdirectory agent collections.
 
 ## When to Use
 
@@ -16,7 +16,11 @@ Interactive menu for browsing and composing agent teams on demand. Works with an
 
 ## Prerequisites
 
-Agent files must be organized as markdown files in subdirectories by domain:
+Agent files must be markdown files containing a persona prompt (identity, rules, workflow, deliverables). The first `# Heading` is used as the agent name and the first paragraph as the description.
+
+Both flat and subdirectory layouts are supported:
+
+**Subdirectory layout** — domain is inferred from the folder name:
 
 ```
 agents/
@@ -29,16 +33,36 @@ agents/
     └── discovery-coach.md
 ```
 
-Each file should contain a persona prompt (identity, rules, workflow, deliverables). The first `# Heading` is used as the agent name and the first paragraph as the description.
+**Flat layout** — all agents in one directory, domain inferred from filename prefix (e.g., `engineering-security-engineer.md` → Engineering). If no prefix pattern is detected, agents are grouped under "General":
 
-## Process
+```
+agents/
+├── engineering-security-engineer.md
+├── engineering-software-architect.md
+├── marketing-seo-specialist.md
+└── sales-discovery-coach.md
+```
+
+## Configuration
+
+The agent directory path is probed in order. The first location that contains `.md` files wins:
+
+1. `./agents/**/*.md` + `./agents/*.md` — project-local agents (both depths)
+2. `~/.claude/agents/**/*.md` + `~/.claude/agents/*.md` — global agents (both depths)
+
+Results from both locations are merged and deduplicated (by agent name). A custom path can be used instead if the user specifies one.
+
+## How It Works
 
 ### Step 1: Discover Available Agents
 
-Glob `agents/**/*.md` (or the user's configured agent directory). Exclude README files. For each file:
-- Extract the domain from the subdirectory name
+Glob agent directories using the probe order above. Exclude README files. For each file found:
+- **Subdirectory layout:** extract the domain from the parent folder name
+- **Flat layout:** extract the domain from the filename prefix before the first `-` that separates domain from agent name (e.g., `engineering-security-engineer.md` → Engineering). If no prefix pattern is detected, use "General"
 - Extract the agent name from the first `# Heading`
 - Extract a one-line summary from the first paragraph after the heading
+
+If no agent files are found after probing all locations, inform the user: "No agent files found. Checked: [list paths probed]. Expected: markdown files in one of those directories." Then stop.
 
 ### Step 2: Present Domain Menu
 
@@ -60,6 +84,8 @@ Accept flexible input:
 - Numbers: "1,3" selects all agents from Engineering and Sales
 - Names: "security + seo" fuzzy-matches against discovered agents
 - "all from engineering" selects every agent in that domain
+
+If more than 5 agents are selected, list them and ask the user to narrow down: "You selected N agents (max 5). Pick which to keep, or say 'top 5'."
 
 Confirm selection:
 ```
@@ -87,22 +113,14 @@ Collect all outputs and present a unified report:
 
 If only 1 agent was selected, skip synthesis and present the output directly.
 
-## Configuration
-
-The agent directory path should be set to wherever your agent markdown files live. Common locations:
-
-- `~/.claude/agents/` — Claude Code global agents
-- `./agents/` — project-local agents
-- Any custom path with markdown persona files
-
 ## Rules
 
 - **Dynamic discovery only.** Never hardcode agent lists. New files in the directory auto-appear in the menu.
-- **Max 5 agents per team.** More than 5 produces diminishing returns and excessive token usage.
+- **Max 5 agents per team.** More than 5 produces diminishing returns and excessive token usage. Enforce at selection time.
 - **Parallel dispatch.** All agents run simultaneously — use the Agent tool's parallel invocation pattern.
 - **No TeamCreate needed.** Ad-hoc teams use parallel Agent calls. Reserve TeamCreate for pre-built teams where agents need to debate or respond to each other.
 
-## Example Usage
+## Examples
 
 ```
 User: team builder
