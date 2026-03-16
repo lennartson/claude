@@ -271,6 +271,27 @@ if parsed["output"] is not None:
 print(json.dumps(observation))
 ' >> "$OBSERVATIONS_FILE"
 
+# Lazy-start observer if enabled but not running (first-time setup)
+if [ ! -f "${PROJECT_DIR}/.observer.pid" ]; then
+  # Check if observer is enabled in config
+  OBSERVER_ENABLED=false
+  CONFIG_FILE="${SKILL_ROOT}/config.json"
+  if [ -f "$CONFIG_FILE" ] && [ -n "$PYTHON_CMD" ]; then
+    _enabled=$("$PYTHON_CMD" -c "
+import json, os
+cfg = json.load(open(os.environ.get('CLV2_CONFIG', '$CONFIG_FILE')))
+print(str(cfg.get('observer', {}).get('enabled', False)).lower())
+" 2>/dev/null || echo "false")
+    if [ "$_enabled" = "true" ]; then
+      OBSERVER_ENABLED=true
+    fi
+  fi
+
+  if [ "$OBSERVER_ENABLED" = "true" ]; then
+    "${SKILL_ROOT}/agents/start-observer.sh" start 2>/dev/null || true
+  fi
+fi
+
 # Signal observer if running (check both project-scoped and global observer)
 for pid_file in "${PROJECT_DIR}/.observer.pid" "${CONFIG_DIR}/.observer.pid"; do
   if [ -f "$pid_file" ]; then
