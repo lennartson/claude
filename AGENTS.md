@@ -27,6 +27,7 @@ This is a **production-ready AI coding plugin** providing 16 specialized agents,
 | go-build-resolver | Go build errors | Go build failures |
 | database-reviewer | PostgreSQL/Supabase specialist | Schema design, query optimization |
 | python-reviewer | Python code review | Python projects |
+| rust-reviewer | Rust code review | Rust projects |
 | chief-of-staff | Communication triage and drafts | Multi-channel email, Slack, LINE, Messenger |
 | loop-operator | Autonomous loop execution | Run loops safely, monitor stalls, intervene |
 | harness-optimizer | Harness config tuning | Reliability, cost, throughput |
