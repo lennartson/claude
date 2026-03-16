@@ -36,7 +36,7 @@ cargo clippy -- -D warnings 2>&1
 cargo fmt --check 2>&1
 
 # Dependency issues
-cargo tree --duplicates 2>/dev/null || echo "no duplicates"
+cargo tree --duplicates
 
 # Security audit (if available)
 if command -v cargo-audit >/dev/null; then cargo audit; else echo "cargo-audit not installed"; fi

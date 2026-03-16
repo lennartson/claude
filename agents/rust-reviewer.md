@@ -69,7 +69,7 @@ When invoked:
 ### MEDIUM — Best Practices
 
 - **Clippy warnings unaddressed**: Suppressed with `#[allow]` without justification
-- **Missing `#[must_use]`**: On functions returning `Result` or important values
+- **Missing `#[must_use]`**: On non-`must_use` return types where ignoring values is likely a bug
 - **Derive order**: Should follow `Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize`
 - **Public API without docs**: `pub` items missing `///` documentation
 - **`format!` for simple concatenation**: Use `push_str`, `concat!`, or `+` for simple cases

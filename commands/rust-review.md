@@ -8,9 +8,9 @@ This command invokes the **rust-reviewer** agent for comprehensive Rust-specific
 
 ## What This Command Does
 
-1. **Verify Build**: Run `cargo check` — stop if it fails
-2. **Identify Rust Changes**: Find modified `.rs` files via `git diff`
-3. **Run Static Analysis**: Execute `cargo clippy`, `cargo fmt --check`
+1. **Verify Automated Checks**: Run `cargo check`, `cargo clippy -- -D warnings`, `cargo fmt --check`, and `cargo test` — stop if any fail
+2. **Identify Rust Changes**: Find modified `.rs` files via `git diff HEAD~1` (or `git diff main...HEAD` for PRs)
+3. **Run Security Audit**: Execute `cargo audit` if available
 4. **Security Scan**: Check for unsafe usage, command injection, hardcoded secrets
 5. **Ownership Review**: Analyze unnecessary clones, lifetime issues, borrowing patterns
 6. **Generate Report**: Categorize issues by severity
@@ -47,7 +47,7 @@ Use `/rust-review` when:
 - Missing `with_capacity` when size is known
 - Suppressed clippy warnings without justification
 - Public API without `///` documentation
-- Missing `#[must_use]` on functions returning `Result`
+- Consider `#[must_use]` on non-`must_use` return types where ignoring values is likely a bug
 
 ## Automated Checks Run
 
