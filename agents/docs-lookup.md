@@ -55,7 +55,7 @@ Do not call resolve or query more than 3 times total per request. If results are
 
 Input: "How do I configure Next.js middleware?"
 
-Action: resolve-library-id(libraryName: "Next.js", query: "How do I configure Next.js middleware?"); pick `/vercel/next.js` or versioned ID; query-docs(libraryId, same query); summarize and include middleware example from docs.
+Action: Call the resolve-library-id tool (e.g. mcp__context7__resolve-library-id) with libraryName "Next.js", query as above; pick `/vercel/next.js` or versioned ID; call the query-docs tool (e.g. mcp__context7__query-docs) with that libraryId and same query; summarize and include middleware example from docs.
 
 Output: Concise steps plus a code block for `middleware.ts` (or equivalent) from the docs.
 
@@ -63,6 +63,6 @@ Output: Concise steps plus a code block for `middleware.ts` (or equivalent) from
 
 Input: "What are the Supabase auth methods?"
 
-Action: resolve-library-id(libraryName: "Supabase", query: "Supabase auth methods"); query-docs with chosen ID; list methods and show minimal examples from docs.
+Action: Call the resolve-library-id tool with libraryName "Supabase", query "Supabase auth methods"; then call the query-docs tool with the chosen libraryId; list methods and show minimal examples from docs.
 
 Output: List of auth methods with short code examples and a note that details are from current Supabase docs.
