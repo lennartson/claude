@@ -77,7 +77,7 @@
     "context7": {
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"],
-      "description": "Live documentation lookup"
+      "description": "Live documentation lookup — use with skills/documentation-lookup and /docs command (resolve-library-id, query-docs)."
     },
     "magic": {
       "command": "npx",
