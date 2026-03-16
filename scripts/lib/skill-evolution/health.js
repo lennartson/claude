@@ -8,7 +8,7 @@ const tracker = require('./tracker');
 const versioning = require('./versioning');
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const PENDING_AMENDMENT_STATUSES = new Set(['pending', 'proposed', 'queued', 'open']);
+const PENDING_AMENDMENT_STATUSES = Object.freeze(new Set(['pending', 'proposed', 'queued', 'open']));
 
 function roundRate(value) {
   if (value === null) {

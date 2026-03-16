@@ -443,11 +443,12 @@ function runTests() {
     })) passed++; else failed++;
 
     console.log(`\nResults: Passed: ${passed}, Failed: ${failed}`);
-    process.exit(failed > 0 ? 1 : 0);
   } finally {
     cleanupTempDir(repoRoot);
     cleanupTempDir(homeDir);
   }
+
+  process.exit(failed > 0 ? 1 : 0);
 }
 
 runTests();

@@ -49,7 +49,7 @@ function panelBox(title, lines, width) {
     output.push('\u2502 ' + truncated.padEnd(innerWidth - 2) + '\u2502');
   }
 
-  output.push('\u2514' + '\u2500'.repeat(innerWidth) + '\u2518');
+  output.push('\u2514' + '\u2500'.repeat(innerWidth - 1) + '\u2518');
   return output.join('\n');
 }
 
@@ -336,10 +336,9 @@ function renderDashboard(options = {}) {
   }
 
   const dashboardOptions = { ...options, now };
-  const report = health.collectSkillHealth(dashboardOptions);
   const records = tracker.readSkillExecutionRecords(dashboardOptions);
   const skillsById = health.discoverSkills(dashboardOptions);
-
+  const report = health.collectSkillHealth(dashboardOptions);
   const summary = health.summarizeHealthReport(report);
 
   const panelRenderers = {
