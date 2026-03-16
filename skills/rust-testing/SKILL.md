@@ -370,14 +370,14 @@ pub fn add(a: i32, b: i32) -> i32 {
 ///
 /// Returns `Err` if the input is not valid TOML.
 ///
-/// ```no_run
+/// ```
 /// use my_crate::parse_config;
 ///
 /// let config = parse_config(r#"port = 8080"#).unwrap();
 /// assert_eq!(config.port, 8080);
 /// ```
 ///
-/// ```no_run,should_panic
+/// ```should_panic
 /// my_crate::parse_config("}{invalid").unwrap();
 /// ```
 pub fn parse_config(input: &str) -> Result<Config, ParseError> {
@@ -421,6 +421,7 @@ criterion_main!(benches);
 ### Running Coverage
 
 ```bash
+# Install: cargo install cargo-llvm-cov (or use taiki-e/install-action in CI)
 cargo llvm-cov                    # Summary
 cargo llvm-cov --html             # HTML report
 cargo llvm-cov --lcov > lcov.info # LCOV format for CI
