@@ -13,6 +13,7 @@ Test-driven development for Laravel applications using PHPUnit and Pest with 80%
 - New features or endpoints in Laravel
 - Bug fixes or refactors
 - Testing Eloquent models, policies, jobs, and notifications
+- Prefer Pest for new tests unless the project already standardizes on PHPUnit
 
 ## How It Works
 
@@ -41,6 +42,11 @@ Choose layers based on scope:
 - `DatabaseMigrations` when you need a full migrate/fresh for every test and can afford the cost
 
 Use `RefreshDatabase` as the default for tests that touch the database: for databases with transaction support, it runs migrations once per test run (via a static flag) and wraps each test in a transaction; for `:memory:` SQLite or connections without transactions, it migrates before each test. Use `DatabaseTransactions` when the schema is already migrated and you only need per-test rollbacks.
+
+### Testing Framework Choice
+
+- Default to **Pest** for new tests when available.
+- Use **PHPUnit** only if the project already standardizes on it or requires PHPUnit-specific tooling.
 
 ## Examples
 
@@ -100,17 +106,42 @@ final class ProjectIndexTest extends TestCase
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\assertDatabaseHas;
+
 uses(RefreshDatabase::class);
 
 test('owner can create project', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->postJson('/api/projects', [
+    $response = actingAs($user)->postJson('/api/projects', [
         'name' => 'New Project',
     ]);
 
     $response->assertCreated();
-    $this->assertDatabaseHas('projects', ['name' => 'New Project']);
+    assertDatabaseHas('projects', ['name' => 'New Project']);
+});
+```
+
+### Feature Test Pest Example (HTTP Layer)
+
+```php
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+use function Pest\Laravel\actingAs;
+
+uses(RefreshDatabase::class);
+
+test('projects index returns paginated results', function () {
+    $user = User::factory()->create();
+    Project::factory()->count(3)->for($user)->create();
+
+    $response = actingAs($user)->getJson('/api/projects');
+
+    $response->assertOk();
+    $response->assertJsonStructure(['success', 'data', 'error', 'meta']);
 });
 ```
 
@@ -218,3 +249,22 @@ use Illuminate\Support\Facades\Gate;
 $this->assertTrue(Gate::forUser($user)->allows('update', $project));
 $this->assertFalse(Gate::forUser($otherUser)->allows('update', $project));
 ```
+
+### Inertia Feature Tests
+
+When using Inertia.js, assert on the component name and props with the Inertia testing helpers.
+
+```php
+use Inertia\Testing\AssertableInertia;
+
+$response = $this->actingAs($user)->get('/dashboard');
+
+$response->assertOk();
+$response->assertInertia(fn (AssertableInertia $page) => $page
+    ->component('Dashboard')
+    ->where('user.id', $user->id)
+    ->has('projects')
+);
+```
+
+Prefer `assertInertia` over raw JSON assertions to keep tests aligned with Inertia responses.
