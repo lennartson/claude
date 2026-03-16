@@ -335,13 +335,17 @@ if [ "$OBSERVER_ENABLED" = "true" ]; then
     else
       # macOS fallback: use lockfile if available, otherwise skip
       if command -v lockfile >/dev/null 2>&1; then
-        lockfile -r 1 "$LAZY_START_LOCK" 2>/dev/null || exit 0
-        _CHECK_OBSERVER_RUNNING "${PROJECT_DIR}/.observer.pid" || true
-        _CHECK_OBSERVER_RUNNING "${CONFIG_DIR}/.observer.pid" || true
-        if [ ! -f "${PROJECT_DIR}/.observer.pid" ] && [ ! -f "${CONFIG_DIR}/.observer.pid" ]; then
-          nohup "${SKILL_ROOT}/agents/start-observer.sh" start >/dev/null 2>&1 &
-        fi
-        rm -f "$LAZY_START_LOCK" 2>/dev/null || true
+        # Use subshell to isolate exit and add trap for cleanup
+        (
+          trap 'rm -f "$LAZY_START_LOCK" 2>/dev/null || true' EXIT
+          lockfile -r 1 -l 30 "$LAZY_START_LOCK" 2>/dev/null || exit 0
+          _CHECK_OBSERVER_RUNNING "${PROJECT_DIR}/.observer.pid" || true
+          _CHECK_OBSERVER_RUNNING "${CONFIG_DIR}/.observer.pid" || true
+          if [ ! -f "${PROJECT_DIR}/.observer.pid" ] && [ ! -f "${CONFIG_DIR}/.observer.pid" ]; then
+            nohup "${SKILL_ROOT}/agents/start-observer.sh" start >/dev/null 2>&1 &
+          fi
+          rm -f "$LAZY_START_LOCK" 2>/dev/null || true
+        )
       fi
     fi
   fi
