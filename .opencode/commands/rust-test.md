@@ -60,7 +60,8 @@ cargo test
 ### Step 4: Implement (GREEN)
 ```rust
 pub fn process(input: &Input) -> Result<Output, Error> {
-    // Minimal implementation
+    // Minimal implementation that handles both paths
+    validate(input)?;
     Ok(Output { /* ... */ })
 }
 ```

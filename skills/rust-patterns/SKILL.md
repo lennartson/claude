@@ -356,7 +356,7 @@ async fn fetch_all(urls: Vec<String>) -> Vec<Result<String>> {
 
     let mut results = Vec::with_capacity(handles.len());
     for handle in handles {
-        results.push(handle.await.expect("spawned task panicked"));
+        results.push(handle.await.unwrap_or_else(|e| panic!("spawned task panicked: {e}")));
     }
     results
 }

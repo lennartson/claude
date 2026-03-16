@@ -33,7 +33,7 @@ mismatched types: expected `T`, found `U`
 ```
 unresolved import `crate::module`
 ```
-**Fix**: Add to Cargo.toml or fix `use` path
+**Fix**: Fix the `use` path or declare the module (add Cargo.toml deps only for external crates)
 
 ### Lifetime Errors
 ```
@@ -67,9 +67,10 @@ cargo test
 
 After fixes:
 ```bash
-cargo check       # Should succeed
-cargo clippy      # No warnings
-cargo test        # Tests should pass
+cargo check                  # Should succeed
+cargo clippy -- -D warnings  # No warnings allowed
+cargo fmt --check            # Formatting should pass
+cargo test                   # Tests should pass
 ```
 
 ---

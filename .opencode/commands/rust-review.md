@@ -30,7 +30,7 @@ Review Rust code for idiomatic patterns and best practices: $ARGUMENTS
 - [ ] No excessive lifetime annotations where elision works
 
 ### Error Handling (HIGH)
-- [ ] Errors propagated with `?` and `.context()`
+- [ ] Errors propagated with `?`; use `.context()` in `anyhow`/`eyre` application code
 - [ ] No silenced errors (`let _ = result;`)
 - [ ] `thiserror` for library errors, `anyhow` for applications
 
