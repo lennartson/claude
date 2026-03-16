@@ -353,7 +353,7 @@ final class StoreOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return (bool) $this->user();
+        return true;
     }
 
     public function rules(): array
