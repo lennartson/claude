@@ -16,6 +16,16 @@ Comprehensive Rust testing patterns for writing reliable, maintainable tests fol
 - Implementing property-based tests for input validation
 - Following TDD workflow in Rust projects
 
+## How It Works
+
+1. **Identify target code** — Find the function, trait, or module to test
+2. **Write a test** — Use `#[test]` in a `#[cfg(test)]` module, rstest for parameterized tests, or proptest for property-based tests
+3. **Mock dependencies** — Use mockall to isolate the unit under test
+4. **Run tests (RED)** — Verify the test fails with the expected error
+5. **Implement (GREEN)** — Write minimal code to pass
+6. **Refactor** — Improve while keeping tests green
+7. **Check coverage** — Use cargo-llvm-cov, target 80%+
+
 ## TDD Workflow for Rust
 
 ### The RED-GREEN-REFACTOR Cycle
@@ -360,14 +370,14 @@ pub fn add(a: i32, b: i32) -> i32 {
 ///
 /// Returns `Err` if the input is not valid TOML.
 ///
-/// ```
+/// ```no_run
 /// use my_crate::parse_config;
 ///
 /// let config = parse_config(r#"port = 8080"#).unwrap();
 /// assert_eq!(config.port, 8080);
 /// ```
 ///
-/// ```should_panic
+/// ```no_run,should_panic
 /// my_crate::parse_config("}{invalid").unwrap();
 /// ```
 pub fn parse_config(input: &str) -> Result<Config, ParseError> {
@@ -411,16 +421,10 @@ criterion_main!(benches);
 ### Running Coverage
 
 ```bash
-# With cargo-llvm-cov (recommended)
-cargo install cargo-llvm-cov
 cargo llvm-cov                    # Summary
 cargo llvm-cov --html             # HTML report
 cargo llvm-cov --lcov > lcov.info # LCOV format for CI
-
-# With cargo-tarpaulin (alternative)
-cargo install cargo-tarpaulin
-cargo tarpaulin --out Html
-cargo tarpaulin --fail-under 80   # Fail if below threshold
+cargo llvm-cov --fail-under-lines 80  # Fail if below threshold
 ```
 
 ### Coverage Targets
@@ -486,10 +490,10 @@ test:
     - name: Run tests
       run: cargo test
 
+    - uses: taiki-e/install-action@cargo-llvm-cov
+
     - name: Coverage
-      run: |
-        cargo install cargo-llvm-cov
-        cargo llvm-cov --fail-under-lines 80
+      run: cargo llvm-cov --fail-under-lines 80
 ```
 
 **Remember**: Tests are documentation. They show how your code is meant to be used. Write them clearly and keep them up to date.
