@@ -352,7 +352,7 @@ async fn fetch_all(urls: Vec<String>) -> Vec<Result<String>> {
 
     let mut results = Vec::with_capacity(handles.len());
     for handle in handles {
-        results.push(handle.await.unwrap());
+        results.push(handle.await.expect("spawned task panicked"));
     }
     results
 }
@@ -366,7 +366,7 @@ async fn fetch_all(urls: Vec<String>) -> Vec<Result<String>> {
 // Acceptable: FFI boundary with documented invariants (Rust 2024+)
 /// # Safety
 /// `ptr` must be a valid, aligned pointer to an initialized `Widget`.
-unsafe fn widget_from_raw(ptr: *const Widget) -> &Widget {
+unsafe fn widget_from_raw<'a>(ptr: *const Widget) -> &'a Widget {
     // SAFETY: caller guarantees ptr is valid and aligned
     unsafe { &*ptr }
 }

@@ -98,8 +98,8 @@ cargo check --workspace               # Check all workspace members
 cargo check -p specific_crate         # Check single crate in workspace
 
 # Lock file issues
-cargo update                          # Refresh lock file
-cargo update -p specific_crate        # Update one dependency
+cargo update -p specific_crate        # Update one dependency (preferred)
+cargo update                          # Full refresh (last resort — broad changes)
 ```
 
 ## Edition and MSRV Issues

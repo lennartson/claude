@@ -30,37 +30,22 @@ REPEAT  → Continue with next requirement
 ### Step-by-Step TDD in Rust
 
 ```rust
-// Step 1: Define the function signature
-// src/calculator.rs
-pub fn add(a: i32, b: i32) -> i32 {
-    todo!() // Placeholder — compiles but panics
-}
+// RED: Write test first, use todo!() as placeholder
+pub fn add(a: i32, b: i32) -> i32 { todo!() }
 
-// Step 2: Write failing test (RED)
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
-    fn test_add() {
-        assert_eq!(add(2, 3), 5);
-    }
+    fn test_add() { assert_eq!(add(2, 3), 5); }
 }
+// cargo test → panics at 'not yet implemented'
 
-// Step 3: Run test — verify FAIL
-// $ cargo test
-// thread 'tests::test_add' panicked at 'not yet implemented'
+// GREEN: Implement minimal code
+pub fn add(a: i32, b: i32) -> i32 { a + b }
+// cargo test → PASS
 
-// Step 4: Implement minimal code (GREEN)
-pub fn add(a: i32, b: i32) -> i32 {
-    a + b
-}
-
-// Step 5: Run test — verify PASS
-// $ cargo test
-// test tests::test_add ... ok
-
-// Step 6: Refactor if needed, verify tests still pass
+// REFACTOR: Improve while keeping tests green
 ```
 
 ## Unit Tests
@@ -391,6 +376,16 @@ pub fn parse_config(input: &str) -> Result<Config, ParseError> {
 ```
 
 ## Benchmarking with Criterion
+
+```toml
+# Cargo.toml
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "benchmark"
+harness = false
+```
 
 ```rust
 // benches/benchmark.rs
