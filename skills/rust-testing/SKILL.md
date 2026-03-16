@@ -205,6 +205,7 @@ async fn fetches_data_successfully() {
 
 #[tokio::test]
 async fn handles_timeout() {
+    use std::time::Duration;
     let result = tokio::time::timeout(
         Duration::from_millis(100),
         slow_operation(),

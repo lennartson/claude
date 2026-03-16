@@ -278,7 +278,7 @@ for user in &users {
 // Collect into different types
 let names: Vec<_> = items.iter().map(|i| &i.name).collect();
 let lookup: HashMap<_, _> = items.iter().map(|i| (i.id, i)).collect();
-let combined: String = parts.iter().collect();
+let combined: String = parts.iter().copied().collect();
 
 // Collect Results — short-circuits on first error
 let parsed: Result<Vec<i32>, _> = strings.iter().map(|s| s.parse()).collect();
@@ -328,7 +328,7 @@ for msg in rx {
 ### Async with Tokio
 
 ```rust
-use tokio::time::{sleep, Duration};
+use tokio::time::Duration;
 
 async fn fetch_with_timeout(url: &str) -> Result<String> {
     let response = tokio::time::timeout(
