@@ -66,6 +66,7 @@ From the reconnaissance data, identify:
 **Key Directories**
 Map the top-level directories to their purpose:
 
+<!-- Example for a React project — replace with detected directories -->
 ```
 src/components/  → React UI components
 src/api/         → API route handlers
@@ -115,6 +116,7 @@ Produce two outputs:
 [2-3 sentences: what this project does and who it serves]
 
 ## Tech Stack
+<!-- Example for a Next.js project — replace with detected stack -->
 | Layer | Technology | Version |
 |-------|-----------|---------|
 | Language | TypeScript | 5.x |
