@@ -117,9 +117,9 @@ Using the data collected in Steps 1-3:
 Context Budget Report
 ═══════════════════════════════════════
 
-Total estimated overhead: ~66,400 tokens
+Total estimated overhead: ~66,100 tokens
 Context model: Claude Sonnet (200K window)
-Effective available context: ~133,600 tokens (66.8%)
+Effective available context: ~133,900 tokens (67.0%)
 
 Component Breakdown:
 ┌─────────────────┬────────┬───────────┐
@@ -141,19 +141,19 @@ Component Breakdown:
    Action: Shorten description frontmatter; move details to agent body
 
 2. MCP OVER-SUBSCRIPTION — 14 servers, 87 tools
-   → github, supabase, vercel (replaceable with CLI: gh, supabase, vercel)
-   Action: Replace 3 MCP servers with direct CLI calls, save ~1,500 tokens
+   → github (~30 tools), supabase (~15 tools), vercel (~10 tools) — replaceable with CLI: gh, supabase, vercel
+   Action: Replace 3 MCP servers with direct CLI calls, save ~27,500 tokens
 
 3. REDUNDANT RULES — typescript.md overlaps with coding-standards.md
    → 23 lines duplicated across both files
    Action: Deduplicate into coding-standards.md, reference from typescript.md
 
 Top 3 Optimizations:
-1. Compress agent descriptions → save ~3,200 tokens
-2. Remove 3 CLI-replaceable MCP servers → save ~1,500 tokens
+1. Remove 3 CLI-replaceable MCP servers → save ~27,500 tokens
+2. Compress agent descriptions → save ~3,200 tokens
 3. Deduplicate rules → save ~400 tokens
 
-Potential savings: ~5,100 tokens (7.7% of current overhead)
+Potential savings: ~31,100 tokens (47.0% of current overhead)
 ```
 
 ## Verbose Mode
