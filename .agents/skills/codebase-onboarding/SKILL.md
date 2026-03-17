@@ -102,6 +102,7 @@ Identify patterns the codebase already follows:
 - Branch naming from recent branches
 - Commit message style from recent commits
 - PR workflow (squash, merge, rebase)
+- If the repo has no commits yet, skip this section and note "No git history available"
 
 ### Phase 4: Generate Onboarding Artifacts
 
@@ -219,7 +220,7 @@ Generate or update a project-specific CLAUDE.md based on detected conventions. I
 ### Example 1: First time in a new repo
 **User**: "Onboard me to this codebase"
 **Action**: Run full 4-phase workflow → produce Onboarding Guide + Starter CLAUDE.md
-**Output**: Two artifacts written to `docs/onboarding-guide.md` and `CLAUDE.md`
+**Output**: Onboarding Guide (printed to conversation or written to project root) and `CLAUDE.md`
 
 ### Example 2: Generate CLAUDE.md for existing project
 **User**: "Generate a CLAUDE.md for this project"
