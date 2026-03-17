@@ -79,7 +79,7 @@ When a decision moment is detected:
 4. **Document alternatives** — what other options were considered? Why were they rejected?
 5. **State consequences** — what are the trade-offs? What becomes easier/harder?
 6. **Assign a number** — scan existing ADRs in `docs/adr/` and increment
-7. **Write the file** — save to `docs/adr/NNNN-decision-title.md`
+7. **Confirm and write** — present the draft ADR to the user for review. Only write to `docs/adr/NNNN-decision-title.md` after explicit approval. If the user declines, discard the draft without writing any files.
 8. **Update the index** — append to `docs/adr/README.md`
 
 ### Reading Existing ADRs
