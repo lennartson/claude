@@ -6,13 +6,14 @@ origin: ECC
 
 # Architecture Decision Records
 
-Capture architectural decisions as they happen during coding sessions, producing structured ADR documents that live alongside the code.
+Capture architectural decisions as they happen during coding sessions, producing structured ADR documents that live alongside the code. Canonical full reference: [`/skills/architecture-decision-records/SKILL.md`](/skills/architecture-decision-records/SKILL.md).
 
 ## When to Activate
 
 - User says "let's record this decision" or "ADR this"
 - User chooses between significant alternatives (framework, library, pattern, database)
 - User says "we decided to..." or "the reason we're doing X instead of Y is..."
+- User asks "why did we choose X?" (read existing ADRs)
 - During planning phases when architectural trade-offs are discussed
 
 ## Workflow
