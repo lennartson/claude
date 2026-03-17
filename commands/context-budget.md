@@ -107,10 +107,12 @@ Check for these common problems:
 ### Step 4: Generate Report
 
 Using the data collected in Steps 1-3:
+- Assume a 200K context window (Claude Sonnet default) unless the user specifies otherwise
 - Format token counts per component into the ASCII table shown below
 - List detected issues in descending order of token savings
 - Compute and display the "Top 3 Optimizations" with estimated savings
 - Show potential total savings as a percentage of current overhead
+- If `$ARGUMENTS` contains `--verbose`, include the additional verbose output described below
 
 #### Output Format
 
