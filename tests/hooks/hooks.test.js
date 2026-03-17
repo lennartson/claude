@@ -9,64 +9,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn, spawnSync } = require('child_process');
-let bashPathStyle = null;
-
-function getBashPathStyle() {
-  if (process.platform !== 'win32') {
-    return 'native';
-  }
-
-  if (bashPathStyle) {
-    return bashPathStyle;
-  }
-
-  const result = spawnSync(
-    'bash',
-    [
-      '-lc',
-      'if command -v cygpath >/dev/null 2>&1; then printf cygwin; elif command -v wslpath >/dev/null 2>&1; then printf wsl; else printf posix; fi'
-    ],
-    {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe']
-    }
-  );
-
-  bashPathStyle = result.status === 0 ? (result.stdout || '').trim() || 'posix' : 'posix';
-  return bashPathStyle;
-}
-
-function toBashPath(filePath) {
-  if (process.platform !== 'win32') {
-    return filePath;
-  }
-
-  const normalized = String(filePath).replace(/\\/g, '/');
-  const bashPathStyle = getBashPathStyle();
-  const drivePrefix = bashPathStyle === 'wsl'
-    ? '/mnt/'
-    : bashPathStyle === 'cygwin'
-      ? '/cygdrive/'
-      : '/';
-  return normalized.replace(/^([A-Za-z]):/, (_, driveLetter) => `${drivePrefix}${driveLetter.toLowerCase()}`);
-}
-
-function fromBashPath(filePath) {
-  if (process.platform !== 'win32') {
-    return filePath;
-  }
-
-  const normalized = String(filePath);
-  const match =
-    normalized.match(/^\/(?:mnt|cygdrive)\/([a-z])(?:\/(.*))?$/i) ||
-    normalized.match(/^\/([a-z])(?:\/(.*))?$/i);
-  if (!match || normalized.startsWith('//')) {
-    return filePath;
-  }
-
-  const [, driveLetter, remainder = ''] = match;
-  return `${driveLetter.toUpperCase()}:\\${remainder.replace(/\//g, '\\')}`;
-}
+const { fromBashPath, toBashPath } = require('../lib/bash-paths');
 
 function shellQuote(value) {
   return `'${String(value).replace(/'/g, `'\\''`)}'`;

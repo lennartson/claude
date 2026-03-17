@@ -5,49 +5,9 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { toBashPath } = require('../lib/bash-paths');
 
 const SCRIPT = path.join(__dirname, '..', '..', 'scripts', 'orchestrate-codex-worker.sh');
-let bashPathStyle = null;
-
-function getBashPathStyle() {
-  if (process.platform !== 'win32') {
-    return 'native';
-  }
-
-  if (bashPathStyle) {
-    return bashPathStyle;
-  }
-
-  const result = spawnSync(
-    'bash',
-    [
-      '-lc',
-      'if command -v cygpath >/dev/null 2>&1; then printf cygwin; elif command -v wslpath >/dev/null 2>&1; then printf wsl; else printf posix; fi'
-    ],
-    {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe']
-    }
-  );
-
-  bashPathStyle = result.status === 0 ? (result.stdout || '').trim() || 'posix' : 'posix';
-  return bashPathStyle;
-}
-
-function toBashPath(filePath) {
-  if (process.platform !== 'win32') {
-    return filePath;
-  }
-
-  const normalized = String(filePath).replace(/\\/g, '/');
-  const bashPathStyle = getBashPathStyle();
-  const drivePrefix = bashPathStyle === 'wsl'
-    ? '/mnt/'
-    : bashPathStyle === 'cygwin'
-      ? '/cygdrive/'
-      : '/';
-  return normalized.replace(/^([A-Za-z]):/, (_, driveLetter) => `${drivePrefix}${driveLetter.toLowerCase()}`);
-}
 
 console.log('=== Testing orchestrate-codex-worker.sh ===\n');
 
