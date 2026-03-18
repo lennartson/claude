@@ -17,7 +17,6 @@ Adds or updates team configuration, identity, or research playbook files for the
 - `.claude/team/everything-claude-code-team-config.json`
 - `.claude/identity.json`
 - `.claude/research/everything-claude-code-research-playbook.md`
-- `.claude/commands/add-team-or-identity-or-research-config.md`
 
 ## Suggested Sequence
 
@@ -31,7 +30,6 @@ Adds or updates team configuration, identity, or research playbook files for the
 - Create or update .claude/team/everything-claude-code-team-config.json
 - Create or update .claude/identity.json
 - Create or update .claude/research/everything-claude-code-research-playbook.md
-- Document the process in .claude/commands/add-team-or-identity-or-research-config.md
 
 ## Notes
 
