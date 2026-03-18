@@ -8,8 +8,8 @@
   ],
   "commandFiles": [
     ".claude/commands/feature-development.md",
-    ".claude/commands/add-documentation-command-or-workflow.md",
-    ".claude/commands/add-documentation-skill-or-agent.md"
+    ".claude/commands/add-documentation-command-or-skill.md",
+    ".claude/commands/add-ecc-bundle-config-or-policy.md"
   ],
-  "updatedAt": "2026-03-18T10:14:52.538Z"
+  "updatedAt": "2026-03-18T10:15:48.401Z"
 }
