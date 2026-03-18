@@ -10,14 +10,11 @@ Use this workflow when working on **add-documentation-command-or-skill-or-agent-
 
 ## Goal
 
-Adds documentation for a new command, skill, agent, or workflow.
+Adds documentation for a new command, skill, agent, or workflow to the project.
 
 ## Common Files
 
 - `.claude/commands/add-documentation-command-or-skill-or-agent-or-workflow.md`
-- `.agents/skills/everything-claude-code/SKILL.md`
-- `.claude/skills/everything-claude-code/SKILL.md`
-- `.codex/AGENTS.md`
 
 ## Suggested Sequence
 
@@ -29,8 +26,6 @@ Adds documentation for a new command, skill, agent, or workflow.
 ## Typical Commit Signals
 
 - Create or update .claude/commands/add-documentation-command-or-skill-or-agent-or-workflow.md
-- Create or update .agents/skills/everything-claude-code/SKILL.md or .claude/skills/everything-claude-code/SKILL.md (for skills)
-- Create or update .codex/AGENTS.md (for agents)
 
 ## Notes
 
