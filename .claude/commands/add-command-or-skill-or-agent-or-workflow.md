@@ -10,7 +10,7 @@ Use this workflow when working on **add-command-or-skill-or-agent-or-workflow** 
 
 ## Goal
 
-Adds a new command, skill, agent, or workflow to the system by creating a corresponding markdown file describing the addition.
+Adds a new command, skill, agent, or workflow to the ECC system by creating a corresponding markdown file describing the addition.
 
 ## Common Files
 
@@ -25,8 +25,7 @@ Adds a new command, skill, agent, or workflow to the system by creating a corres
 
 ## Typical Commit Signals
 
-- Create a new markdown file in .claude/commands/ with a name matching add-command-or-skill-or-agent-or-workflow.md or similar.
-- Document the new command, skill, agent, or workflow in the markdown file.
+- Create or update '.claude/commands/add-command-or-skill-or-agent-or-workflow.md' with details of the new entity.
 
 ## Notes
 
