@@ -1,0 +1,28 @@
+Timestamp,Category,Component,File_Path,Description,Status,Notes
+2026-02-17T14:30:00Z,Config,Desktop,$HOME/Library/Application Support/Claude/claude_desktop_config.json,Desktop MCP configuration file,Active,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Config,Desktop,$HOME/.config/Claude/claude_desktop_config.json,Desktop MCP configuration file (Linux),Active,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Config,Chrome,$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts,Chrome native messaging manifests directory,Active,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Config,Chrome,$HOME/.config/google-chrome/NativeMessagingHosts,Chrome native messaging manifests directory (Linux),Active,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Backup,Desktop,$HOME/backups/claude-config-YYYYMMDD-HHMMSS.json,Desktop config backup location,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Backup,Chrome,$HOME/backups/chrome-manifest-YYYYMMDD-HHMMSS/,Chrome manifest backup directory,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Evidence,System,$HOME/evidence/migration-YYYYMMDD-HHMMSS/,Evidence collection directory,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Evidence,System,$HOME/evidence/migration-YYYYMMDD-HHMMSS/system/,System state evidence,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Evidence,Config,$HOME/evidence/migration-YYYYMMDD-HHMMSS/config/,Configuration evidence,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Evidence,Tests,$HOME/evidence/migration-YYYYMMDD-HHMMSS/tests/,Test results evidence,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Evidence,Security,$HOME/evidence/migration-YYYYMMDD-HHMMSS/security/,Security audit evidence,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Evidence,Logs,$HOME/evidence/migration-YYYYMMDD-HHMMSS/logs/,Log files,Template,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/DESKTOP_CONFIG_PLAN.md,Desktop MCP configuration planning guide,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/HANDOFF_QUEUE.md,Staged migration checklist,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/DESKTOP_MCP_NOTES.md,Desktop MCP quick reference,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/CODE_HANDOFF.md,Claude Code handoff guide,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/CHROME_HANDOFF.md,Chrome extension handoff guide,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/ACCEPTANCE_TEST.md,Acceptance test procedures,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/RUN_REPORT.md,Run report template,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/EVIDENCE.md,Evidence collection guide,Active,Core migration documentation
+2026-02-17T14:30:00Z,Docs,Migration,$HOME/AI/09-Migration-Meta/MIG_2026-02-17/MANIFEST.csv,File manifest (this file),Active,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Logs,Desktop,$HOME/Library/Logs/Claude/,Claude Desktop log directory (macOS),Reference,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Logs,Chrome,$HOME/Library/Logs/Google/Chrome/,Chrome log directory (macOS),Reference,Use $HOME variable for portability
+2026-02-17T14:30:00Z,Security,Secrets,$HOME/.env,Environment variables (should be denied),Protected,Never commit to version control
+2026-02-17T14:30:00Z,Security,Secrets,$HOME/.aws/credentials,AWS credentials (should be denied),Protected,Use deny lists in MCP config
+2026-02-17T14:30:00Z,Security,Secrets,$HOME/.ssh/,SSH keys directory (should be denied),Protected,Use deny lists in MCP config
+2026-02-17T14:30:00Z,Security,Config,$HOME/config/secrets.*,Configuration secrets (should be denied),Protected,Use deny lists in MCP config

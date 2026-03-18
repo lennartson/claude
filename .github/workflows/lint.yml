@@ -1,0 +1,139 @@
+name: Lint & Security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Minimal permissions
+permissions:
+  contents: read
+
+# Prevent duplicate runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  json-validation:
+    name: Validate JSON Files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          failed=0
+          while IFS= read -r file; do
+            echo "Checking: $file"
+            if ! jq empty "$file" 2>/dev/null; then
+              echo "❌ Invalid JSON: $file"
+              failed=1
+            else
+              echo "✅ Valid: $file"
+            fi
+          done < <(find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*")
+
+          if [ $failed -eq 1 ]; then
+            echo "JSON validation failed"
+            exit 1
+          fi
+          echo "All JSON files are valid"
+
+  shellcheck:
+    name: Shell Script Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          echo "Running shellcheck on shell scripts..."
+          failed=0
+          while IFS= read -r file; do
+            echo "Checking: $file"
+            if ! shellcheck "$file"; then
+              echo "❌ shellcheck failed: $file"
+              failed=1
+            else
+              echo "✅ Passed: $file"
+            fi
+          done < <(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*")
+
+          if [ $failed -eq 1 ]; then
+            echo "shellcheck validation failed"
+            exit 1
+          fi
+          echo "All shell scripts passed shellcheck"
+
+  secrets-scan:
+    name: Secrets Pattern Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for secret patterns
+        run: |
+          echo "Scanning for secret patterns..."
+          failed=0
+
+          # Define patterns to search for
+          patterns=(
+            "ghp_[a-zA-Z0-9]{36}"  # GitHub Personal Access Token
+            "sk-[a-zA-Z0-9_-]{43,}"  # OpenAI/Anthropic API key (including sk-proj- format)
+            "AKIA[0-9A-Z]{16}"     # AWS Access Key
+            "xoxb-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9]{24}"  # Slack Bot Token
+            "xoxp-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9]{24}"  # Slack User Token
+          )
+
+          pattern_names=(
+            "GitHub Personal Access Token"
+            "OpenAI/Anthropic API Key"
+            "AWS Access Key"
+            "Slack Bot Token"
+            "Slack User Token"
+          )
+
+          # Search for each pattern
+          for i in "${!patterns[@]}"; do
+            pattern="${patterns[$i]}"
+            name="${pattern_names[$i]}"
+
+            echo "Checking for: $name"
+            matches=$(grep -rE "$pattern" . \
+              --exclude-dir=node_modules \
+              --exclude-dir=.git \
+              --exclude="*.log" \
+              2>/dev/null || true)
+
+            if [ -n "$matches" ]; then
+              echo "❌ Found potential $name:"
+              echo "$matches"
+              failed=1
+            fi
+          done
+
+          if [ $failed -eq 1 ]; then
+            echo ""
+            echo "⚠️  Secret patterns detected! Please remove sensitive data before merging."
+            exit 1
+          fi
+
+          echo "✅ No secret patterns detected"

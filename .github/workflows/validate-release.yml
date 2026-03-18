@@ -1,0 +1,30 @@
+name: Validate Release Artifact
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      artifact_name:
+        description: 'Name of the zip artifact to validate'
+        required: true
+        type: string
+
+jobs:
+  validate:
+    runs-on: ${{ vars.MACOS_RUNNER || 'macos-15' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+
+      - name: Validate artifact for banned files
+        run: |
+          chmod +x .github/scripts/validate-artifact.sh
+          .github/scripts/validate-artifact.sh "${{ inputs.artifact_name }}"

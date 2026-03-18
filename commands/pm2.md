@@ -267,6 +267,7 @@ pm2 stop {name}        # Stop single
 pm2 logs               # View logs
 pm2 monit              # Monitor panel
 pm2 resurrect          # Restore saved processes
+```
 
 **Tip:** Run `pm2 save` after first start to enable simplified commands.
 ```

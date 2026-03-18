@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/YOUR/OBSIDIAN/VAULT",
+        "/YOUR/PROJECTS/DIR"
+      ],
+      "deny": [
+        "Read(./.env)", "Read(./.env.*)", "Write(./.env)",
+        "Read(./config/secrets.*)", "Write(./config/secrets.*)"
+      ]
+    },
+    "sqlite-ledger": {
+      "command": "uvx",
+      "args": ["mcp-server-sqlite", "--db-path", "/YOUR/DB/PATH/ledger.db"]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "obsidian-mcp", "/YOUR/OBSIDIAN/VAULT"]
+    }
+  }
+}

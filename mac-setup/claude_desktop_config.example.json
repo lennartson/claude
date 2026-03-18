@@ -1,0 +1,39 @@
+{
+  "_comment_security": "SECURITY WARNING: Never put API keys, tokens, or secrets in this configuration file!",
+  "_comment_paths": "IMPORTANT: Replace /YOUR/... placeholders with actual absolute paths on your system",
+  "_comment_no_shell_expansion": "Note: $HOME and other shell variables do NOT expand in JSON config - use absolute paths",
+  "_comment_deny_lists": "Always use deny lists to protect sensitive files like .env, credentials, SSH keys",
+  "_comment_minimal_config": "This is a reference example with 4 portable MCP servers - only add what you need",
+
+  "mcpServers": {
+    "memory": {
+      "_comment": "Ephemeral storage for conversation context",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "filesystem": {
+      "_comment": "Replace paths with your actual Obsidian vault and projects directory",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/YOUR/OBSIDIAN/VAULT",
+        "/YOUR/PROJECTS/DIR"
+      ],
+      "deny": [
+        "Read(./.env)", "Read(./.env.*)", "Write(./.env)",
+        "Read(./config/secrets.*)", "Write(./config/secrets.*)"
+      ]
+    },
+    "sqlite-ledger": {
+      "_comment": "Optional: Persistent structured storage via SQLite",
+      "command": "uvx",
+      "args": ["mcp-server-sqlite", "--db-path", "/YOUR/DB/PATH/ledger.db"]
+    },
+    "obsidian": {
+      "_comment": "Optional: Direct Obsidian vault access (replace path with your vault)",
+      "command": "npx",
+      "args": ["-y", "obsidian-mcp", "/YOUR/OBSIDIAN/VAULT"]
+    }
+  }
+}
