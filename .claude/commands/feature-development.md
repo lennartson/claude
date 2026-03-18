@@ -14,8 +14,7 @@ Standard feature implementation workflow
 
 ## Common Files
 
-- `manifests/*`
-- `**/*.test.*`
+- Inspect the files touched by the related commits before editing.
 
 ## Suggested Sequence
 
