@@ -10,7 +10,7 @@ Use this workflow when working on **add-team-or-identity-or-research-config** in
 
 ## Goal
 
-Adds or updates team configuration, identity, or research playbook files for the ECC bundle.
+Adds new team, identity, or research configuration files to the ECC bundle.
 
 ## Common Files
 
@@ -27,10 +27,10 @@ Adds or updates team configuration, identity, or research playbook files for the
 
 ## Typical Commit Signals
 
-- Create or update .claude/team/everything-claude-code-team-config.json for team configuration.
-- Create or update .claude/identity.json for identity information.
-- Create or update .claude/research/everything-claude-code-research-playbook.md for research playbooks.
-- Commit the changes with a message referencing the ECC bundle.
+- Create or update .claude/team/everything-claude-code-team-config.json for team config.
+- Create or update .claude/identity.json for identity config.
+- Create or update .claude/research/everything-claude-code-research-playbook.md for research config.
+- Commit the relevant file(s) with a message referencing the ECC bundle.
 
 ## Notes
 
