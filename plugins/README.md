@@ -25,7 +25,6 @@ claude plugin marketplace add https://github.com/mixedbread-ai/mgrep
 | claude-plugins-official | `anthropics/claude-plugins-official` |
 | claude-code-plugins | `anthropics/claude-code` |
 | Mixedbread-Grep (@mixedbread-ai) | `mixedbread-ai/mgrep` |
-| AutoCode (@ilang-ai) | `ilang-ai/autocode` |
 
 ---
 
