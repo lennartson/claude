@@ -98,6 +98,7 @@ This repo is the raw code only. The guides explain everything.
 - **Codex CLI support** — New `/codex-setup` command generates `codex.md` for OpenAI Codex CLI compatibility
 - **7 new skills** — `search-first`, `swift-actor-persistence`, `swift-protocol-di-testing`, `regex-vs-llm-structured-text`, `content-hash-cache-pattern`, `cost-aware-llm-pipeline`, `skill-stocktake`
 - **AgentShield integration** — `/security-scan` skill runs AgentShield directly from Claude Code; 1282 tests, 102 rules
+- **Prism Scanner** — Open-source security scanner for agent skills, plugins, and MCP servers with 39+ rules, AST taint tracking, and A-F grading ([GitHub](https://github.com/aidongise-cell/prism-scanner))
 - **GitHub Marketplace** — ECC Tools GitHub App live at [github.com/marketplace/ecc-tools](https://github.com/marketplace/ecc-tools) with free/pro/enterprise tiers
 - **30+ community PRs merged** — Contributions from 30 contributors across 6 languages
 - **978 internal tests** — Expanded validation suite across agents, skills, commands, hooks, and rules
