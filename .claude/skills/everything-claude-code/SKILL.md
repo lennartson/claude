@@ -201,7 +201,7 @@ feat: add everything-claude-code ECC bundle (.codex/AGENTS.md)
 
 ### Add Command Or Skill Or Agent Or Workflow
 
-Adds a new command, skill, agent, or workflow to the system by creating or updating the relevant markdown file in the .claude/commands directory.
+Adds a new command, skill, agent, or workflow to the system by creating a corresponding markdown file in the .claude/commands directory.
 
 **Frequency**: ~3 times per month
 
@@ -218,7 +218,7 @@ Create or update .claude/commands/add-command-or-skill-or-agent-or-workflow.md
 
 ### Add Team Or Identity Or Research Config
 
-Adds or updates team configuration, identity, or research playbook by modifying the corresponding files in .claude/team, .claude/identity.json, or .claude/research.
+Adds or updates configuration files for teams, identities, or research playbooks in the .claude directory.
 
 **Frequency**: ~3 times per month
 
@@ -231,7 +231,6 @@ Adds or updates team configuration, identity, or research playbook by modifying 
 - `.claude/team/everything-claude-code-team-config.json`
 - `.claude/identity.json`
 - `.claude/research/everything-claude-code-research-playbook.md`
-- `.claude/commands/add-team-or-identity-or-research-config.md`
 
 **Example commit sequence**:
 ```
@@ -240,68 +239,29 @@ Create or update .claude/identity.json
 Create or update .claude/research/everything-claude-code-research-playbook.md
 ```
 
-### Add Guardrails Or Controls
+### Add Guardrails Or Instincts
 
-Adds or updates guardrails and enterprise controls by modifying the relevant markdown files in .claude/rules and .claude/enterprise.
+Adds or updates project guardrails or instincts by modifying YAML or markdown files in the .claude/rules or .claude/homunculus/instincts directories.
 
 **Frequency**: ~3 times per month
 
 **Steps**:
 1. Create or update .claude/rules/everything-claude-code-guardrails.md
-2. Create or update .claude/enterprise/controls.md
+2. Create or update .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml
 
 **Files typically involved**:
 - `.claude/rules/everything-claude-code-guardrails.md`
-- `.claude/enterprise/controls.md`
-
-**Example commit sequence**:
-```
-Create or update .claude/rules/everything-claude-code-guardrails.md
-Create or update .claude/enterprise/controls.md
-```
-
-### Add Instincts
-
-Adds or updates inherited instincts for the homunculus agent by modifying the YAML file in .claude/homunculus/instincts/inherited.
-
-**Frequency**: ~3 times per month
-
-**Steps**:
-1. Create or update .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml
-
-**Files typically involved**:
 - `.claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml`
 
 **Example commit sequence**:
 ```
+Create or update .claude/rules/everything-claude-code-guardrails.md
 Create or update .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml
-```
-
-### Add Codex Agent
-
-Adds or updates agent definitions in the .codex/agents directory and updates the AGENTS.md index.
-
-**Frequency**: ~3 times per month
-
-**Steps**:
-1. Create or update .codex/agents/*.toml
-2. Create or update .codex/AGENTS.md
-
-**Files typically involved**:
-- `.codex/agents/docs-researcher.toml`
-- `.codex/agents/reviewer.toml`
-- `.codex/agents/explorer.toml`
-- `.codex/AGENTS.md`
-
-**Example commit sequence**:
-```
-Create or update .codex/agents/*.toml
-Create or update .codex/AGENTS.md
 ```
 
 ### Add Skill Documentation
 
-Adds or updates skill documentation in the SKILL.md files under .agents/skills or .claude/skills.
+Adds or updates skill documentation markdown files in the .agents/skills or .claude/skills directories.
 
 **Frequency**: ~2 times per month
 
