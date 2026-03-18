@@ -10,7 +10,7 @@ Use this workflow when working on **add-new-skill-command** in `everything-claud
 
 ## Goal
 
-Adds documentation or configuration for a new skill command to the system.
+Adds a new skill command to the system by creating the corresponding markdown documentation.
 
 ## Common Files
 
