@@ -60,6 +60,10 @@ claude plugin install typescript-lsp@claude-plugins-official
 - `frontend-design` - UI patterns
 - `feature-dev` - Feature development
 
+**Non-Programmer / Auto-Coding:**
+- `autocode` - Auto-activated skills for non-programmers with persistent memory and I-Lang compression. `ilang-ai/autocode`
+
+
 ---
 
 ## Quick Setup
@@ -83,3 +87,4 @@ claude plugin marketplace add https://github.com/mixedbread-ai/mgrep
 |-- known_marketplaces.json   # Added marketplaces
 |-- marketplaces/             # Marketplace data
 ```
+
