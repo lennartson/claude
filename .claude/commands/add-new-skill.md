@@ -10,14 +10,16 @@ Use this workflow when working on **add-new-skill** in `everything-claude-code`.
 
 ## Goal
 
-Adds a new skill to the repository, including documentation and agent config if cross-harness.
+Adds a new skill to the codebase, including documentation, agent configuration, and cross-harness copies.
 
 ## Common Files
 
 - `skills/*/SKILL.md`
 - `.agents/skills/*/SKILL.md`
-- `.cursor/skills/*/SKILL.md`
 - `.agents/skills/*/agents/openai.yaml`
+- `.cursor/skills/*/SKILL.md`
+- `manifests/install-components.json`
+- `manifests/install-modules.json`
 
 ## Suggested Sequence
 
@@ -28,10 +30,11 @@ Adds a new skill to the repository, including documentation and agent config if 
 
 ## Typical Commit Signals
 
-- Create or update skills/<skill-name>/SKILL.md with skill documentation.
-- If cross-harness, add .agents/skills/<skill-name>/SKILL.md and/or .cursor/skills/<skill-name>/SKILL.md.
-- If agent config is needed, add .agents/skills/<skill-name>/agents/openai.yaml.
-- If needed, register the skill in install manifests or documentation.
+- Create or update SKILL.md in skills/<skill-name>/SKILL.md
+- Create or update agents/openai.yaml in .agents/skills/<skill-name>/agents/openai.yaml
+- Copy or update SKILL.md in .agents/skills/<skill-name>/SKILL.md and/or .cursor/skills/<skill-name>/SKILL.md
+- Register or update skill in manifests/install-components.json, install-modules.json, or install-profiles.json as needed
+- Update documentation (README.md, AGENTS.md) if required
 
 ## Notes
 
