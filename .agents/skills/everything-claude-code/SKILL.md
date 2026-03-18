@@ -201,24 +201,24 @@ feat: add everything-claude-code ECC bundle (.codex/AGENTS.md)
 
 ### Add Command Or Skill Or Agent Or Workflow
 
-Adds a new command, skill, agent, or workflow to the ECC system.
+Adds a new command, skill, agent, or workflow to the system by creating or updating the relevant markdown file in the .claude/commands directory.
 
 **Frequency**: ~3 times per month
 
 **Steps**:
-1. Create or update .claude/commands/add-command-or-skill-or-agent-or-workflow.md with the new entity details
+1. Create or update .claude/commands/add-command-or-skill-or-agent-or-workflow.md
 
 **Files typically involved**:
 - `.claude/commands/add-command-or-skill-or-agent-or-workflow.md`
 
 **Example commit sequence**:
 ```
-Create or update .claude/commands/add-command-or-skill-or-agent-or-workflow.md with the new entity details
+Create or update .claude/commands/add-command-or-skill-or-agent-or-workflow.md
 ```
 
 ### Add Team Or Identity Or Research Config
 
-Adds or updates team configuration, identity, or research playbook files.
+Adds or updates team configuration, identity, or research playbook by modifying the corresponding files in .claude/team, .claude/identity.json, or .claude/research.
 
 **Frequency**: ~3 times per month
 
@@ -226,7 +226,6 @@ Adds or updates team configuration, identity, or research playbook files.
 1. Create or update .claude/team/everything-claude-code-team-config.json
 2. Create or update .claude/identity.json
 3. Create or update .claude/research/everything-claude-code-research-playbook.md
-4. Optionally update .claude/commands/add-team-or-identity-or-research-config.md
 
 **Files typically involved**:
 - `.claude/team/everything-claude-code-team-config.json`
@@ -239,14 +238,13 @@ Adds or updates team configuration, identity, or research playbook files.
 Create or update .claude/team/everything-claude-code-team-config.json
 Create or update .claude/identity.json
 Create or update .claude/research/everything-claude-code-research-playbook.md
-Optionally update .claude/commands/add-team-or-identity-or-research-config.md
 ```
 
-### Add Or Update Guardrails And Controls
+### Add Guardrails Or Controls
 
-Establishes or modifies project guardrails and enterprise controls.
+Adds or updates guardrails and enterprise controls by modifying the relevant markdown files in .claude/rules and .claude/enterprise.
 
-**Frequency**: ~2 times per month
+**Frequency**: ~3 times per month
 
 **Steps**:
 1. Create or update .claude/rules/everything-claude-code-guardrails.md
@@ -262,11 +260,11 @@ Create or update .claude/rules/everything-claude-code-guardrails.md
 Create or update .claude/enterprise/controls.md
 ```
 
-### Add Or Update Instincts
+### Add Instincts
 
-Adds or updates inherited instincts for the homunculus agent.
+Adds or updates inherited instincts for the homunculus agent by modifying the YAML file in .claude/homunculus/instincts/inherited.
 
-**Frequency**: ~2 times per month
+**Frequency**: ~3 times per month
 
 **Steps**:
 1. Create or update .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml
@@ -279,9 +277,31 @@ Adds or updates inherited instincts for the homunculus agent.
 Create or update .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml
 ```
 
-### Add Or Update Skill Documentation
+### Add Codex Agent
 
-Adds or updates documentation for a skill in both .agents and .claude directories.
+Adds or updates agent definitions in the .codex/agents directory and updates the AGENTS.md index.
+
+**Frequency**: ~3 times per month
+
+**Steps**:
+1. Create or update .codex/agents/*.toml
+2. Create or update .codex/AGENTS.md
+
+**Files typically involved**:
+- `.codex/agents/docs-researcher.toml`
+- `.codex/agents/reviewer.toml`
+- `.codex/agents/explorer.toml`
+- `.codex/AGENTS.md`
+
+**Example commit sequence**:
+```
+Create or update .codex/agents/*.toml
+Create or update .codex/AGENTS.md
+```
+
+### Add Skill Documentation
+
+Adds or updates skill documentation in the SKILL.md files under .agents/skills or .claude/skills.
 
 **Frequency**: ~2 times per month
 
@@ -297,32 +317,6 @@ Adds or updates documentation for a skill in both .agents and .claude directorie
 ```
 Create or update .agents/skills/everything-claude-code/SKILL.md
 Create or update .claude/skills/everything-claude-code/SKILL.md
-```
-
-### Add Or Update Codex Agents
-
-Adds or updates agent configuration files in the .codex/agents directory and updates agent documentation.
-
-**Frequency**: ~2 times per month
-
-**Steps**:
-1. Create or update .codex/agents/docs-researcher.toml
-2. Create or update .codex/agents/reviewer.toml
-3. Create or update .codex/agents/explorer.toml
-4. Optionally update .codex/AGENTS.md
-
-**Files typically involved**:
-- `.codex/agents/docs-researcher.toml`
-- `.codex/agents/reviewer.toml`
-- `.codex/agents/explorer.toml`
-- `.codex/AGENTS.md`
-
-**Example commit sequence**:
-```
-Create or update .codex/agents/docs-researcher.toml
-Create or update .codex/agents/reviewer.toml
-Create or update .codex/agents/explorer.toml
-Optionally update .codex/AGENTS.md
 ```
 
 
