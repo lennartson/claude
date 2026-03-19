@@ -9,15 +9,10 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn, spawnSync } = require('child_process');
+const { fromBashPath, toBashPath } = require('../lib/bash-paths');
 
-function toBashPath(filePath) {
-  if (process.platform !== 'win32') {
-    return filePath;
-  }
-
-  return String(filePath)
-    .replace(/^([A-Za-z]):/, (_, driveLetter) => `/mnt/${driveLetter.toLowerCase()}`)
-    .replace(/\\/g, '/');
+function shellQuote(value) {
+  return `'${String(value).replace(/'/g, `'\\''`)}'`;
 }
 
 function sleepMs(ms) {
@@ -79,11 +74,27 @@ function runScript(scriptPath, input = '', env = {}) {
 
 function runShellScript(scriptPath, args = [], input = '', env = {}, cwd = process.cwd()) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('bash', [toBashPath(scriptPath), ...args], {
-      cwd,
-      env: { ...process.env, ...env },
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
+    const proc = process.platform === 'win32'
+      ? spawn(
+          'bash',
+          [
+            '-lc',
+            [
+              ...Object.entries(env).map(([key, value]) => `export ${key}=${shellQuote(value)}`),
+              `exec bash ${shellQuote(toBashPath(scriptPath))}${args.length > 0 ? ` ${args.map(shellQuote).join(' ')}` : ''}`
+            ].join('; ')
+          ],
+          {
+            cwd,
+            env: process.env,
+            stdio: ['pipe', 'pipe', 'pipe']
+          }
+        )
+      : spawn('bash', [scriptPath, ...args], {
+          cwd,
+          env: { ...process.env, ...env },
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
 
     let stdout = '';
     let stderr = '';
@@ -120,6 +131,11 @@ function cleanupTestDir(testDir) {
       sleepMs(50 * (attempt + 1));
     }
   }
+}
+
+function canonicalizeExistingPath(targetPath) {
+  const realpath = typeof fs.realpathSync.native === 'function' ? fs.realpathSync.native(targetPath) : fs.realpathSync(targetPath);
+  return process.platform === 'win32' ? realpath.toLowerCase() : realpath;
 }
 
 function createCommandShim(binDir, baseName, logFile) {
@@ -1084,7 +1100,11 @@ async function runTests() {
       assert.strictEqual(result.code, 0, 'Should exit 0 for config-only repo');
       const logEntries = readCommandLog(logFile);
       assert.strictEqual(logEntries.length, 1, 'Should invoke formatter once');
-      assert.strictEqual(fs.realpathSync(logEntries[0].cwd), fs.realpathSync(rootDir), 'Should run formatter from config root');
+      assert.strictEqual(
+        canonicalizeExistingPath(logEntries[0].cwd),
+        canonicalizeExistingPath(rootDir),
+        'Should run formatter from config root'
+      );
       assert.deepStrictEqual(logEntries[0].args, ['prettier', '--write', filePath], 'Should use the formatter on the nested file');
       cleanupTestDir(testDir);
     })
@@ -2279,9 +2299,12 @@ async function runTests() {
   if (
     await asyncTest('detect-project exports the resolved Python command for downstream scripts', async () => {
       const detectProjectPath = path.join(__dirname, '..', '..', 'skills', 'continuous-learning-v2', 'scripts', 'detect-project.sh');
-      const shellCommand = [`source "${toBashPath(detectProjectPath)}" >/dev/null 2>&1`, 'printf "%s\\n" "${CLV2_PYTHON_CMD:-}"'].join('; ');
+      const shellCommand = [
+        `source "${toBashPath(detectProjectPath)}" >/dev/null 2>&1`,
+        `env | grep '^CLV2_PYTHON_CMD=' | sed 's/^CLV2_PYTHON_CMD=//'`
+      ].join('; ');
 
-      const shell = process.platform === 'win32' ? 'bash' : 'bash';
+      const shell = 'bash';
       const proc = spawn(shell, ['-lc', shellCommand], {
         env: process.env,
         stdio: ['ignore', 'pipe', 'pipe']
@@ -2318,10 +2341,12 @@ async function runTests() {
         spawnSync('git', ['remote', 'add', 'origin', 'https://github.com/example/ecc-test.git'], { cwd: repoDir, stdio: 'ignore' });
 
         const shellCommand = [
+          `export HOME=${shellQuote(toBashPath(homeDir))}`,
+          `export USERPROFILE=${shellQuote(toBashPath(homeDir))}`,
           `cd "${toBashPath(repoDir)}"`,
           `source "${toBashPath(detectProjectPath)}" >/dev/null 2>&1`,
-          'printf "%s\\n" "$PROJECT_ID"',
-          'printf "%s\\n" "$PROJECT_DIR"'
+          `env | grep '^PROJECT_ID=' | sed 's/^PROJECT_ID=//'`,
+          `env | grep '^PROJECT_DIR=' | sed 's/^PROJECT_DIR=//'`
         ].join('; ');
 
         const proc = spawn('bash', ['-lc', shellCommand], {
@@ -2341,7 +2366,8 @@ async function runTests() {
 
         assert.strictEqual(code, 0, `detect-project should source cleanly, stderr: ${stderr}`);
 
-        const [projectId, projectDir] = stdout.trim().split(/\r?\n/);
+        const [projectId, bashProjectDir] = stdout.trim().split(/\r?\n/);
+        const projectDir = fromBashPath(bashProjectDir);
         const registryPath = path.join(homeDir, '.claude', 'homunculus', 'projects.json');
         const projectMetadataPath = path.join(projectDir, 'project.json');
 
@@ -2355,10 +2381,71 @@ async function runTests() {
         assert.ok(registry[projectId], 'registry should contain the detected project');
         assert.strictEqual(metadata.id, projectId, 'project.json should include the detected id');
         assert.strictEqual(metadata.name, path.basename(repoDir), 'project.json should include the repo name');
-        assert.strictEqual(fs.realpathSync(metadata.root), fs.realpathSync(repoDir), 'project.json should include the repo root');
+        assert.strictEqual(
+          canonicalizeExistingPath(fromBashPath(metadata.root)),
+          canonicalizeExistingPath(repoDir),
+          'project.json should include the repo root'
+        );
         assert.strictEqual(metadata.remote, 'https://github.com/example/ecc-test.git', 'project.json should include the sanitized remote');
         assert.ok(metadata.created_at, 'project.json should include created_at');
         assert.ok(metadata.last_seen, 'project.json should include last_seen');
+      } finally {
+        cleanupTestDir(testRoot);
+      }
+    })
+  )
+    passed++;
+  else failed++;
+
+  if (
+    await asyncTest('detect-project preserves legacy env-hash project state when CLAUDE_PROJECT_DIR normalizes on Windows', async () => {
+      if (process.platform !== 'win32') {
+        return;
+      }
+
+      const crypto = require('crypto');
+      const testRoot = createTestDir();
+      const homeDir = path.join(testRoot, 'home');
+      const repoDir = path.join(testRoot, 'repo');
+      const detectProjectPath = path.join(__dirname, '..', '..', 'skills', 'continuous-learning-v2', 'scripts', 'detect-project.sh');
+      const legacyProjectId = crypto.createHash('sha256').update(repoDir).digest('hex').slice(0, 12);
+      const legacyProjectDir = path.join(homeDir, '.claude', 'homunculus', 'projects', legacyProjectId);
+      const markerPath = path.join(legacyProjectDir, 'legacy.txt');
+
+      try {
+        fs.mkdirSync(homeDir, { recursive: true });
+        fs.mkdirSync(repoDir, { recursive: true });
+        fs.mkdirSync(legacyProjectDir, { recursive: true });
+        fs.writeFileSync(markerPath, 'legacy-state\n', 'utf8');
+
+        const shellCommand = [
+          `export HOME=${shellQuote(toBashPath(homeDir))}`,
+          `export USERPROFILE=${shellQuote(toBashPath(homeDir))}`,
+          `export CLAUDE_PROJECT_DIR=${shellQuote(repoDir)}`,
+          `source "${toBashPath(detectProjectPath)}" >/dev/null 2>&1`,
+          `env | grep '^PROJECT_DIR=' | sed 's/^PROJECT_DIR=//'`
+        ].join('; ');
+
+        const proc = spawn('bash', ['-lc', shellCommand], {
+          env: { ...process.env, HOME: homeDir, USERPROFILE: homeDir, CLAUDE_PROJECT_DIR: repoDir },
+          stdio: ['ignore', 'pipe', 'pipe']
+        });
+
+        let stdout = '';
+        let stderr = '';
+        proc.stdout.on('data', data => (stdout += data));
+        proc.stderr.on('data', data => (stderr += data));
+
+        const code = await new Promise((resolve, reject) => {
+          proc.on('close', resolve);
+          proc.on('error', reject);
+        });
+
+        assert.strictEqual(code, 0, `detect-project should source cleanly, stderr: ${stderr}`);
+
+        const projectDir = fromBashPath(stdout.trim());
+        assert.ok(projectDir.length > 0, 'detect-project should emit a project directory');
+        assert.ok(fs.existsSync(path.join(projectDir, 'legacy.txt')), 'legacy project state should be preserved after normalization');
       } finally {
         cleanupTestDir(testRoot);
       }

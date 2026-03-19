@@ -37,13 +37,32 @@ function formatCommand(program, args) {
 function buildTemplateVariables(values) {
   return Object.entries(values).reduce((accumulator, [key, value]) => {
     const stringValue = String(value);
-    const quotedValue = shellQuote(stringValue);
 
     accumulator[key] = stringValue;
     accumulator[`${key}_raw`] = stringValue;
-    accumulator[`${key}_sh`] = quotedValue;
+    accumulator[`${key}_sh`] = shellQuote(stringValue);
     return accumulator;
   }, {});
+}
+
+const SHELL_PATH_PLACEHOLDERS = {
+  handoff_file: 'handoff_file_sh',
+  repo_root: 'repo_root_sh',
+  status_file: 'status_file_sh',
+  task_file: 'task_file_sh',
+  worktree_path: 'worktree_path_sh'
+};
+
+function validateLauncherCommand(template) {
+  const unsafePlaceholders = Object.entries(SHELL_PATH_PLACEHOLDERS)
+    .filter(([placeholder]) => template.includes(`{${placeholder}}`))
+    .map(([placeholder, safePlaceholder]) => `{${placeholder}} -> {${safePlaceholder}}`);
+
+  if (unsafePlaceholders.length > 0) {
+    throw new Error(
+      `launcherCommand must use shell-safe path placeholders: ${unsafePlaceholders.join(', ')}`
+    );
+  }
 }
 
 function buildSessionBannerCommand(sessionName, coordinationDir) {
@@ -228,6 +247,7 @@ function buildOrchestrationPlan(config = {}) {
     if (!launcherCommand) {
       throw new Error(`Worker ${workerName} is missing a launcherCommand`);
     }
+    validateLauncherCommand(launcherCommand);
 
     const gitArgs = ['worktree', 'add', '-b', branchName, worktreePath, baseRef];
 
