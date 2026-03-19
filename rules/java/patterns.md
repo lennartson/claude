@@ -26,7 +26,6 @@ Concrete implementations handle storage details (JPA, JDBC, in-memory for tests)
 Business logic in service classes; keep controllers and repositories thin:
 
 ```java
-@Service
 public class OrderService {
     private final OrderRepository orderRepository;
     private final PaymentGateway paymentGateway;
@@ -51,7 +50,6 @@ Always use constructor injection — never field injection:
 
 ```java
 // GOOD — constructor injection (testable, immutable)
-@Service
 public class NotificationService {
     private final EmailSender emailSender;
 
@@ -60,10 +58,9 @@ public class NotificationService {
     }
 }
 
-// BAD — field injection (untestable without reflection)
-@Service
+// BAD — field injection (untestable without reflection, requires framework magic)
 public class NotificationService {
-    @Autowired
+    @Inject // or @Autowired
     private EmailSender emailSender;
 }
 ```
@@ -121,10 +118,10 @@ public sealed interface PaymentResult permits PaymentSuccess, PaymentFailure {
     record PaymentFailure(String errorCode, String message) implements PaymentResult {}
 }
 
-// Exhaustive handling
-return switch (result) {
-    case PaymentSuccess s -> ResponseEntity.ok(s);
-    case PaymentFailure f -> ResponseEntity.badRequest().body(f);
+// Exhaustive handling (Java 21+)
+String message = switch (result) {
+    case PaymentSuccess s -> "Paid: " + s.transactionId();
+    case PaymentFailure f -> "Failed: " + f.errorCode();
 };
 ```
 

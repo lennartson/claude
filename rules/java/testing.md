@@ -34,8 +34,12 @@ class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
-    @InjectMocks
     private OrderService orderService;
+
+    @BeforeEach
+    void setUp() {
+        orderService = new OrderService(orderRepository);
+    }
 
     @Test
     @DisplayName("findById returns order when exists")
@@ -82,21 +86,21 @@ Use Testcontainers for real database integration:
 
 ```java
 @Testcontainers
-@SpringBootTest
 class OrderRepositoryIT {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
 
-    @DynamicPropertySource
-    static void configure(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
-
-    @Autowired
     private OrderRepository repository;
+
+    @BeforeEach
+    void setUp() {
+        var dataSource = new PGSimpleDataSource();
+        dataSource.setUrl(postgres.getJdbcUrl());
+        dataSource.setUser(postgres.getUsername());
+        dataSource.setPassword(postgres.getPassword());
+        repository = new JdbcOrderRepository(dataSource);
+    }
 
     @Test
     void save_and_findById() {
@@ -106,6 +110,8 @@ class OrderRepositoryIT {
     }
 }
 ```
+
+For Spring Boot integration tests, see skill: `springboot-tdd`.
 
 ## Test Naming
 

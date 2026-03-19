@@ -17,7 +17,7 @@ paths:
 
 - Prefer `record` for value types (Java 17+)
 - Mark fields `final` by default — use mutable state only when required
-- Return unmodifiable collections from public APIs: `List.of()`, `Map.of()`, `Collections.unmodifiableList()`
+- Return defensive copies from public APIs: `List.copyOf()`, `Map.copyOf()`, `List.of()`
 - Copy-on-write: return new instances rather than mutating existing ones
 
 ```java
@@ -43,14 +43,15 @@ Follow standard Java conventions:
 - `SCREAMING_SNAKE_CASE` for `static final` constants
 - Packages: all lowercase, reverse domain (`com.example.app.service`)
 
-## Modern Java (17+)
+## Modern Java Features
 
 Use modern language features where they improve clarity:
-- **Records** for DTOs and value types
-- **Sealed classes** for closed type hierarchies
-- **Pattern matching** with `instanceof` (no explicit cast)
-- **Text blocks** for multi-line strings (SQL, JSON templates)
-- **Switch expressions** with arrow syntax
+- **Records** for DTOs and value types (Java 16+)
+- **Sealed classes** for closed type hierarchies (Java 17+)
+- **Pattern matching** with `instanceof` — no explicit cast (Java 16+)
+- **Text blocks** for multi-line strings — SQL, JSON templates (Java 15+)
+- **Switch expressions** with arrow syntax (Java 14+)
+- **Pattern matching in switch** — exhaustive sealed type handling (Java 21+)
 
 ```java
 // Pattern matching instanceof

@@ -9,32 +9,33 @@ paths:
 ## Secrets Management
 
 - Never hardcode API keys, tokens, or credentials in source code
-- Use environment variables or external config (`application.yml` with `${ENV_VAR}`)
+- Use environment variables: `System.getenv("API_KEY")`
 - Use a secret manager (Vault, AWS Secrets Manager) for production secrets
-- Keep `application-local.yml` in `.gitignore` for local development
+- Keep local config files with secrets in `.gitignore`
 
 ```java
 // BAD
 private static final String API_KEY = "sk-abc123...";
 
-// GOOD — externalized config
-@Value("${payment.api-key}")
-private String apiKey;
+// GOOD — environment variable
+String apiKey = System.getenv("PAYMENT_API_KEY");
+Objects.requireNonNull(apiKey, "PAYMENT_API_KEY must be set");
 ```
 
 ## SQL Injection Prevention
 
 - Always use parameterized queries — never concatenate user input into SQL
-- Use JPA named parameters or Spring JDBC `NamedParameterJdbcTemplate`
+- Use `PreparedStatement` or your framework's parameterized query API
 - Validate and sanitize any input used in native queries
 
 ```java
-// BAD — SQL injection
-@Query(value = "SELECT * FROM orders WHERE name = '" + name + "'", nativeQuery = true)
+// BAD — SQL injection via string concatenation
+String sql = "SELECT * FROM orders WHERE name = '" + name + "'";
+statement.executeQuery(sql);
 
-// GOOD — parameterized
-@Query("SELECT o FROM Order o WHERE o.name = :name")
-List<Order> findByName(@Param("name") String name);
+// GOOD — PreparedStatement with parameterized query
+PreparedStatement ps = conn.prepareStatement("SELECT * FROM orders WHERE name = ?");
+ps.setString(1, name);
 
 // GOOD — JDBC template
 jdbcTemplate.query("SELECT * FROM orders WHERE name = ?", mapper, name);
@@ -42,20 +43,21 @@ jdbcTemplate.query("SELECT * FROM orders WHERE name = ?", mapper, name);
 
 ## Input Validation
 
-- Use Bean Validation (`@NotNull`, `@NotBlank`, `@Size`, `@Email`, `@Pattern`) on DTOs
-- Validate at controller boundaries with `@Valid`
+- Validate all user input at system boundaries before processing
+- Use Bean Validation (`@NotNull`, `@NotBlank`, `@Size`) on DTOs when using a validation framework
 - Sanitize file paths and user-provided strings before use
+- Reject input that fails validation with clear error messages
 
 ```java
-public record CreateOrderRequest(
-    @NotBlank String customerName,
-    @NotNull @Positive BigDecimal amount,
-    @Size(max = 500) String notes
-) {}
-
-@PostMapping("/orders")
-public ResponseEntity<?> create(@Valid @RequestBody CreateOrderRequest request) {
-    // request is already validated
+// Validate manually in plain Java
+public Order createOrder(String customerName, BigDecimal amount) {
+    if (customerName == null || customerName.isBlank()) {
+        throw new IllegalArgumentException("Customer name is required");
+    }
+    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+        throw new IllegalArgumentException("Amount must be positive");
+    }
+    return new Order(customerName, amount);
 }
 ```
 
@@ -63,7 +65,7 @@ public ResponseEntity<?> create(@Valid @RequestBody CreateOrderRequest request) 
 
 - Never implement custom auth crypto — use established libraries
 - Store passwords with bcrypt or Argon2, never MD5/SHA1
-- Use method-level security (`@PreAuthorize`) for authorization checks
+- Enforce authorization checks at service boundaries
 - Clear sensitive data from logs — never log passwords, tokens, or PII
 
 ## Dependency Security
@@ -75,22 +77,19 @@ public ResponseEntity<?> create(@Valid @RequestBody CreateOrderRequest request) 
 ## Error Messages
 
 - Never expose stack traces, internal paths, or SQL errors in API responses
-- Use a global exception handler (`@ControllerAdvice`) to standardize error output
+- Centralize error handling — map exceptions to safe, generic client messages
 - Log detailed errors server-side; return generic messages to clients
 
 ```java
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(EntityNotFoundException ex) {
-        return ResponseEntity.status(404).body(ApiResponse.error(ex.getMessage()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex) {
-        log.error("Unexpected error", ex);
-        return ResponseEntity.status(500).body(ApiResponse.error("Internal server error"));
-    }
+// Log the detail, return a generic message
+try {
+    return orderService.findById(id);
+} catch (OrderNotFoundException ex) {
+    log.warn("Order not found: id={}", id);
+    return ApiResponse.error("Resource not found");  // generic, no internals
+} catch (Exception ex) {
+    log.error("Unexpected error processing order id={}", id, ex);
+    return ApiResponse.error("Internal server error");  // never expose ex.getMessage()
 }
 ```
 
