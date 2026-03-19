@@ -15,7 +15,7 @@ paths:
 
 ## Immutability
 
-- Prefer `record` for value types (Java 17+)
+- Prefer `record` for value types (Java 16+)
 - Mark fields `final` by default — use mutable state only when required
 - Return defensive copies from public APIs: `List.copyOf()`, `Map.copyOf()`, `Set.copyOf()`
 - Copy-on-write: return new instances rather than mutating existing ones

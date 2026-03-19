@@ -30,8 +30,9 @@ Objects.requireNonNull(apiKey, "PAYMENT_API_KEY must be set");
 
 ```java
 // BAD — SQL injection via string concatenation
+Statement stmt = conn.createStatement();
 String sql = "SELECT * FROM orders WHERE name = '" + name + "'";
-statement.executeQuery(sql);
+stmt.executeQuery(sql);
 
 // GOOD — PreparedStatement with parameterized query
 PreparedStatement ps = conn.prepareStatement("SELECT * FROM orders WHERE name = ?");
