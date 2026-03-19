@@ -104,7 +104,7 @@ public class OrderNotFoundException extends RuntimeException {
 ## Streams
 
 - Use streams for transformations; keep pipelines short (3-4 operations max)
-- Prefer method references when readable: `.map(Order::total)`
+- Prefer method references when readable: `.map(Order::getTotal)`
 - Avoid side effects in stream operations
 - For complex logic, prefer a loop over a convoluted stream pipeline
 
